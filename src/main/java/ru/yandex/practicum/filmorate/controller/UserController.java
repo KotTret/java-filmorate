@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.validator.ValidatorException;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.IdGenerator;
 import ru.yandex.practicum.filmorate.model.User;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import java.time.LocalDate;
+import javax.validation.Valid;
 import java.util.*;
 
 @RestController
@@ -14,6 +15,11 @@ import java.util.*;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
+    private final IdGenerator idGenerator;
+    private final static EmailValidator  EMAIL_VALIDATOR =  EmailValidator.getInstance();
+    public UserController() {
+        this.idGenerator = new IdGenerator();
+    }
 
     @GetMapping("/users")
     public List<User> findAll() {
@@ -23,9 +29,9 @@ public class UserController {
     }
 
     @PostMapping(value = "/users")
-    public User create(@RequestBody User user) throws ValidatorException {
+    public User create(@Valid @RequestBody User user)  {
         validate(user);
-        user.setId(User.idCounter++);
+        user.setId(idGenerator.getId());
         users.put(user.getId(), user);
         log.info("Добавлен пользователь: {}", user.getEmail());
         return user;
@@ -33,7 +39,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/users")
-    public User put(@RequestBody User user) throws ValidatorException {
+    public User put(@Valid @RequestBody User user) {
         validate(user);
         users.put(user.getId(), user);
         log.info("Информация о пользователе обнолвена: {}", user.getEmail());
@@ -41,32 +47,17 @@ public class UserController {
     }
 
 
-    public void validate(User user) throws ValidatorException {
+    public void validate(User user)  {
 
         if (user.getId() != null && !users.containsKey(user.getId())) {
-            throw new ValidatorException("Пользователь не найден");
+            throw new ValidationException("Пользователь не найден");
         }
 
-        if(user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new ValidatorException("Адрес электронной почты не может быть пустым.");
-        }
-        if (!EmailValidator.getInstance().isValid(user.getEmail())) {
-            throw new ValidatorException("Неверно указан адрес электронной почты.");
-        }
-/*        if(users.containsKey(user.getEmail())) {
-            throw new ValidatorException("Пользователь с электронной почтой " +
-                    user.getEmail() + " уже зарегистрирован.");
-        }*/
-        if(user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
-            throw new ValidatorException("Логин не может быть пустым и содержать пробелы.");
+        if (!EMAIL_VALIDATOR.isValid(user.getEmail())) {
+            throw new ValidationException("Неверно указан адрес электронной почты.");
         }
 
-        if (user.getBirthday().isAfter(LocalDate.now()) ||
-                user.getBirthday().isBefore(LocalDate.now().minusYears(100))) {
-            throw new ValidatorException("Дата рождения указана не верно");
-        }
-
-        if(user.getName() == null || user.getName().trim().isEmpty()) {
+        if(user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }

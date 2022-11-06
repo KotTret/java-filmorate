@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.apache.commons.validator.ValidatorException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -39,57 +39,18 @@ class UserControllerTest {
                 .email("@mail@mail.ru")
                 .birthday(LocalDate.of(2022, 1, 1))
                 .build();
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
+        assertThrows(ValidationException.class, () -> userController.validate(user),
                 "email неверный, должно быть исключение");
         user.setEmail("");
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
+        assertThrows(ValidationException.class, () -> userController.validate(user),
                 "email неверный, должно быть исключение");
         user.setEmail(null);
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
+        assertThrows(ValidationException.class, () -> userController.validate(user),
                 "email неверный, должно быть исключение");
     }
 
     @Test
-    void validateShouldThrowExceptionWhenLoginIsIncorrect() {
-        User user = User.builder()
-                .login("")
-                .name("create")
-                .email("mail@mail.ru")
-                .birthday(LocalDate.of(2022, 1, 1))
-                .build();
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "Логин пустой, должно быть исключение");
-        user.setLogin(null);
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "Логин отсутствует, должно быть исключение");
-        user.setLogin("Test test");
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "Логин содержит пробелы, должно быть исключение");
-        user.setLogin("      Test");
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "Логин содержит пробелы, должно быть исключение");
-        user.setLogin("Test       ");
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "Логин содержит пробелы, должно быть исключение");
-    }
-
-    @Test
-    void validateShouldThrowExceptionWhenBirthdayIsIncorrect() {
-        User user = User.builder()
-                .login("Test")
-                .name("create")
-                .email("mail@mail.ru")
-                .birthday(LocalDate.of(2023, 1, 1))
-                .build();
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "День рождения не может быть в будущем, должно быть исключение");
-        user.setBirthday(LocalDate.of(1666, 1,1));
-        assertThrows(ValidatorException.class, () -> userController.validate(user),
-                "КОГДА???, должно быть исключение");
-    }
-
-    @Test
-    void validateShouldThrowExceptionWhenNameIsEmpty() throws ValidatorException {
+    void validateShouldThrowExceptionWhenNameIsEmpty()  {
         User user = User.builder()
                 .login("Test")
                 .name("")
