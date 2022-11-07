@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class User {
 
     private Integer id;
+    @NotNull
     @Email
     private String email;
     @NotBlank(message = "Логин не может быть пустым.")

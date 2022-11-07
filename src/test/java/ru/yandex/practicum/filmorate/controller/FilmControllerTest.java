@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.IdGenerator;
 
 import java.time.LocalDate;
 
@@ -15,7 +16,7 @@ class FilmControllerTest {
 
     @BeforeAll
     static void beforeAll() {
-        filmController = new FilmController();
+        filmController = new FilmController(new IdGenerator());
     }
 
     @Test

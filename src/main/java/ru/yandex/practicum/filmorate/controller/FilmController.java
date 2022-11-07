@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +18,13 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
+
+    private final static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
     private final Map<Integer, Film> films = new HashMap<>();
 
     private final IdGenerator idGenerator;
-    private final static LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
-
-    public FilmController() {
-        this.idGenerator = new IdGenerator();
-    }
 
     @GetMapping("/films")
     public List<Film> findAll() {
@@ -34,7 +33,7 @@ public class FilmController {
     }
 
     @PostMapping(value = "/films")
-    public Film create(@Valid @RequestBody Film film)  {
+    public Film create(@Valid @RequestBody Film film) {
         validate(film);
         film.setId(idGenerator.getId());
         films.put(film.getId(), film);
@@ -43,14 +42,14 @@ public class FilmController {
     }
 
     @PutMapping(value = "/films")
-    public Film put(@Valid @RequestBody Film film)  {
+    public Film put(@Valid @RequestBody Film film) {
         validate(film);
         films.put(film.getId(), film);
         log.info("Информация о фильме обнолвена: {}", film.getName());
         return film;
     }
 
-    public void validate(Film film)  {
+    public void validate(Film film) {
         if (film.getId() != null && !films.containsKey(film.getId())) {
             throw new ValidationException("Фильм не найден");
         }

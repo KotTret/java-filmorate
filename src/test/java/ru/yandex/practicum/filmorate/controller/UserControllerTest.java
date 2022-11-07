@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.IdGenerator;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ class UserControllerTest {
 
     @BeforeAll
     static void beforeAll() {
-        userController = new UserController();
+        userController = new UserController(new IdGenerator());
     }
 
 

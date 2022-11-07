@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -12,14 +13,12 @@ import java.util.*;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
     private final IdGenerator idGenerator;
-    private final static EmailValidator  EMAIL_VALIDATOR =  EmailValidator.getInstance();
-    public UserController() {
-        this.idGenerator = new IdGenerator();
-    }
+    private final static EmailValidator emailValidator =  EmailValidator.getInstance();
 
     @GetMapping("/users")
     public List<User> findAll() {
@@ -53,7 +52,7 @@ public class UserController {
             throw new ValidationException("Пользователь не найден");
         }
 
-        if (!EMAIL_VALIDATOR.isValid(user.getEmail())) {
+        if (!emailValidator.isValid(user.getEmail())) {
             throw new ValidationException("Неверно указан адрес электронной почты.");
         }
 
