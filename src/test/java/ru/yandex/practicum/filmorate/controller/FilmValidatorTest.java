@@ -4,19 +4,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.IdGenerator;
+import ru.yandex.practicum.filmorate.validation.FilmValidator;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FilmControllerTest {
+class FilmValidatorTest {
 
-    private static  FilmController filmController;
+    private static FilmValidator filmValidator;
 
     @BeforeAll
     static void beforeAll() {
-        filmController = new FilmController(new IdGenerator());
+        filmValidator = new FilmValidator();
     }
 
     @Test
@@ -27,7 +27,7 @@ class FilmControllerTest {
                 .releaseDate(LocalDate.of(2022, 1, 1))
                 .duration(130)
                 .build();
-        assertDoesNotThrow(() -> filmController.validate(film),
+        assertDoesNotThrow(() -> filmValidator.validate(film),
                 "Не должно быть исключений");
     }
 
@@ -39,7 +39,7 @@ class FilmControllerTest {
                 .releaseDate(LocalDate.of(1666, 1, 1))
                 .duration(130)
                 .build();
-        assertThrows(ValidationException.class, () -> filmController.validate(film),
+        assertThrows(ValidationException.class, () ->filmValidator.validate(film),
                 "дата релиза — не раньше 28 декабря 1895 года, должно быть исключение");
     }
 }
