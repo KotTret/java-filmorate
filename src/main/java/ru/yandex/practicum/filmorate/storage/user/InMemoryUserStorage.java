@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.UpdateDataException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.IdGenerator;
 
@@ -26,14 +25,6 @@ public class InMemoryUserStorage implements  UserStorage{
 
     @Override
     public void upDateUser(User user) {
-        if (user.getId() == null) {
-            throw  new UpdateDataException("Идентификатор пользователя отсутствует, невозможно обновить данные. " +
-                    "Пользователь не найден");
-        }
-        if (!users.containsKey(user.getId())) {
-            throw  new UpdateDataException("Такого пользователя ещё нет, невозможно обновить!");
-        }
-
         users.put(user.getId(), user);
     }
 

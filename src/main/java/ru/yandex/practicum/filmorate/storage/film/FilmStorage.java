@@ -15,4 +15,8 @@ public interface FilmStorage {
     int getNumberFilms();
 
     List<Film> getFilms();
+
+    boolean containsId(Integer id);
+
+    Film getFilm(Integer id);
 }

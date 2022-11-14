@@ -3,20 +3,24 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validation.FilmValidator;
 
-import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
 
-    private  final FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private final FilmValidator filmValidator;
 
     public List<Film> findAll() {
@@ -33,8 +37,63 @@ public class FilmService {
 
     public Film put(Film film) {
         filmValidator.validate(film);
+        if (film.getId() == null) {
+            throw new UserNotFoundException("Идентификатор фильма отсутствует, невозможно обновить фильм. Фильм не найден");
+        }
+        if (!filmStorage.containsId(film.getId())) {
+            throw new UserNotFoundException("Такого фильма ещё нет, невозможно обновить!");
+        }
         filmStorage.upDateFilm(film);
         log.info("Информация о фильме обнолвена: {}", film.getName());
         return film;
     }
+
+    public Film getFilm(Integer id) {
+        checkFilm(id);
+        log.info("Запрошена информация о фильме: {}", filmStorage.getFilm(id).getName());
+        return filmStorage.getFilm(id);
+    }
+
+    public void putLike(Integer id, Integer userId) {
+        checkUserAndFilm(userId, id);
+        filmStorage.getFilm(id).getLikesOfUsers().add(userId);
+        userStorage.getUser(userId).getFavoriteMovies().add(id);
+        log.info("Пользователю: {} понравился фильм: {}", userStorage.getUser(userId).getEmail(),
+                filmStorage.getFilm(id).getName());
+    }
+
+    public void deleteLike(Integer id, Integer userId) {
+        checkUserAndFilm(userId, id);
+        filmStorage.getFilm(id).getLikesOfUsers().remove(userId);
+        userStorage.getUser(userId).getFavoriteMovies().remove(id);
+        log.info("Пользователю: {} удалил лайк у  фильмв: {}", userStorage.getUser(userId).getEmail(),
+                filmStorage.getFilm(id).getName());
+    }
+
+    /*Привет, подскажи пожалуйста тут, как сделать лучше, впринципе это работает, но меня смущает, что если будет много
+     * фильмов это займёт много времени, не лучше будет ли добавить в Storage какой нить TreeSet, который будет хранить
+     * сразу отсортированнеы фильмы по популярности или есть какое нить лучшее решение???*/
+    public List<Film> findPopularFilms(Integer count) {
+        List<Film> films = filmStorage.getFilms();
+        return films.stream()
+                .sorted(Comparator.comparing(o -> -o.getLikesOfUsers().size()))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+
+    private void checkFilm(Integer id) {
+        if (!filmStorage.containsId(id)) {
+            throw new FilmNotFoundException("Фильм не найден, проверьте верно ли указан Id");
+        }
+    }
+
+    private void checkUserAndFilm(Integer idUser, Integer idFilm) {
+        if (!userStorage.containsId(idUser)) {
+            throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
+        }
+        checkFilm(idFilm);
+    }
+
+
 }

@@ -1,21 +1,18 @@
 package ru.yandex.practicum.filmorate.storage.film;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.UpdateDataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.IdGenerator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements  FilmStorage{
 
     private final Map<Integer, Film> films = new HashMap<>();
+
+    //   private final Set<Film> popularFilms = new TreeSet<>(Comparator.comparing(o -> o.getLikesOfUsers().size()));
 
     private final IdGenerator idGenerator;
 
@@ -27,12 +24,6 @@ public class InMemoryFilmStorage implements  FilmStorage{
 
     @Override
     public void upDateFilm(Film film) {
-        if (film.getId() == null) {
-            throw  new UpdateDataException("Идентификатор фильма отсутствует, невозможно обновить фильм. Фильм не найден");
-        }
-        if (!films.containsKey(film.getId())) {
-            throw  new UpdateDataException("Такого фильма ещё нет, невозможно обновить!");
-        }
         films.put(film.getId(), film);
     }
 
@@ -49,6 +40,16 @@ public class InMemoryFilmStorage implements  FilmStorage{
     @Override
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public boolean containsId(Integer id) {
+        return films.containsKey(id);
+    }
+
+    @Override
+    public Film getFilm(Integer id) {
+        return films.get(id);
     }
 
 }
