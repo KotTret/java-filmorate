@@ -12,18 +12,16 @@ public class InMemoryFilmStorage implements  FilmStorage{
 
     private final Map<Integer, Film> films = new HashMap<>();
 
-    //   private final Set<Film> popularFilms = new TreeSet<>(Comparator.comparing(o -> o.getLikesOfUsers().size()));
-
     private final IdGenerator idGenerator;
 
     @Override
-    public void addFilm(Film film) {
+    public void add(Film film) {
         film.setId(idGenerator.getId());
         films.put(film.getId(), film);
     }
 
     @Override
-    public void upDateFilm(Film film) {
+    public void update(Film film) {
         films.put(film.getId(), film);
     }
 
@@ -33,7 +31,7 @@ public class InMemoryFilmStorage implements  FilmStorage{
     }
 
     @Override
-    public int getNumberFilms() {
+    public int getCount() {
         return films.size();
     }
 
@@ -48,7 +46,7 @@ public class InMemoryFilmStorage implements  FilmStorage{
     }
 
     @Override
-    public Film getFilm(Integer id) {
+    public Film get(Integer id) {
         return films.get(id);
     }
 

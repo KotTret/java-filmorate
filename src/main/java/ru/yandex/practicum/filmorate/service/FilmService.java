@@ -24,13 +24,13 @@ public class FilmService {
     private final FilmValidator filmValidator;
 
     public List<Film> findAll() {
-        log.info("Текущее количество фильмов: {}", filmStorage.getNumberFilms());
+        log.info("Текущее количество фильмов: {}", filmStorage.getCount());
         return filmStorage.getFilms();
     }
 
     public Film create(Film film) {
         filmValidator.validate(film);
-        filmStorage.addFilm(film);
+        filmStorage.add(film);
         log.info("Добавлен фильм: {}", film.getName());
         return film;
     }
@@ -43,37 +43,34 @@ public class FilmService {
         if (!filmStorage.containsId(film.getId())) {
             throw new UserNotFoundException("Такого фильма ещё нет, невозможно обновить!");
         }
-        filmStorage.upDateFilm(film);
+        filmStorage.update(film);
         log.info("Информация о фильме обнолвена: {}", film.getName());
         return film;
     }
 
-    public Film getFilm(Integer id) {
+    public Film get(Integer id) {
         checkFilm(id);
-        log.info("Запрошена информация о фильме: {}", filmStorage.getFilm(id).getName());
-        return filmStorage.getFilm(id);
+        log.info("Запрошена информация о фильме: {}", filmStorage.get(id).getName());
+        return filmStorage.get(id);
     }
 
     public void putLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        filmStorage.getFilm(id).getLikesOfUsers().add(userId);
-        userStorage.getUser(userId).getFavoriteMovies().add(id);
-        log.info("Пользователю: {} понравился фильм: {}", userStorage.getUser(userId).getEmail(),
-                filmStorage.getFilm(id).getName());
+        filmStorage.get(id).getLikesOfUsers().add(userId);
+        userStorage.get(userId).getFavoriteMovies().add(id);
+        log.info("Пользователю: {} понравился фильм: {}", userStorage.get(userId).getEmail(),
+                filmStorage.get(id).getName());
     }
 
     public void deleteLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        filmStorage.getFilm(id).getLikesOfUsers().remove(userId);
-        userStorage.getUser(userId).getFavoriteMovies().remove(id);
-        log.info("Пользователю: {} удалил лайк у  фильмв: {}", userStorage.getUser(userId).getEmail(),
-                filmStorage.getFilm(id).getName());
+        filmStorage.get(id).getLikesOfUsers().remove(userId);
+        userStorage.get(userId).getFavoriteMovies().remove(id);
+        log.info("Пользователю: {} удалил лайк у  фильмв: {}", userStorage.get(userId).getEmail(),
+                filmStorage.get(id).getName());
     }
 
-    /*Привет, подскажи пожалуйста тут, как сделать лучше, впринципе это работает, но меня смущает, что если будет много
-     * фильмов это займёт много времени, не лучше будет ли добавить в Storage какой нить TreeSet, который будет хранить
-     * сразу отсортированнеы фильмы по популярности или есть какое нить лучшее решение???*/
-    public List<Film> findPopularFilms(Integer count) {
+    public List<Film> findPopular(Integer count) {
         List<Film> films = filmStorage.getFilms();
         return films.stream()
                 .sorted(Comparator.comparing(o -> -o.getLikesOfUsers().size()))

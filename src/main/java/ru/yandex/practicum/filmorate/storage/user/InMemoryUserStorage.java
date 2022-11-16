@@ -18,13 +18,13 @@ public class InMemoryUserStorage implements  UserStorage{
     private final IdGenerator idGenerator;
 
     @Override
-    public void addUser(User user) {
+    public void add(User user) {
         user.setId(idGenerator.getId());
         users.put(user.getId(), user);
     }
 
     @Override
-    public void upDateUser(User user) {
+    public void update(User user) {
         users.put(user.getId(), user);
     }
 
@@ -38,12 +38,12 @@ public class InMemoryUserStorage implements  UserStorage{
     }
 
     @Override
-    public int getNumberUsers() {
+    public int getCount() {
         return users.size();
     }
 
     @Override
-    public User getUser(Integer id) {
+    public User get(Integer id) {
         return users.get(id);
     }
 

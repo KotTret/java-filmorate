@@ -6,17 +6,17 @@ import java.util.List;
 
 public interface UserStorage {
 
-    void addUser(User user);
+    void add(User user);
 
-    void upDateUser(User user);
+    void update(User user);
 
     void delete(Integer id);
 
     List<User> getUsers();
 
-    int getNumberUsers();
+    int getCount();
 
-    User getUser(Integer id);
+    User get(Integer id);
 
     boolean containsId(Integer id);
 }

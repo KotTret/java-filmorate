@@ -3,15 +3,18 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class FilmController {
     private  final FilmService filmService;
 
@@ -40,13 +43,20 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
+    /*Привет, подскажи ещё, пожалуйста, можно как-то красиво и элегантно проверять, что переданный параметр
+    * является исключительно числом, и сразу это поймать через аннотацию, или для этого надо создавать свою,
+    * просто если сейчас передать в count не число, то вылетает MethodArgumentTypeMismatchException, или
+    * это исключение добавить в обработчик?, времени особо не было, поискал инфу, но что-то так
+    * путёвого и не нашёл, пытался и через @Pattern, но что-то не получилось*/
     @GetMapping("/films/popular")
-    public List<Film> findPopularFilms(@RequestParam(required = false, defaultValue = "10") Integer count) {
-        return filmService.findPopularFilms(count);
+    public List<Film> findPopular(@RequestParam(required = false, defaultValue = "10")
+                                  @Positive(message = "Передаваемый параметр должен быть больше 0")
+                                   Integer count) {
+        return filmService.findPopular(count);
     }
 
     @GetMapping("/films/{filmId}")
-    public Film getFilm(@PathVariable Integer filmId) {
-        return filmService.getFilm(filmId);
+    public Film get(@PathVariable Integer filmId) {
+        return filmService.get(filmId);
     }
 }

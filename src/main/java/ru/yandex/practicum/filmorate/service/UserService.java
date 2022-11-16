@@ -21,26 +21,25 @@ public class UserService {
     private final UserValidator userValidator;
 
     public List<User> findAll() {
-        log.info("Текущее количество пользователей: {}", userStorage.getNumberUsers());
+        log.info("Текущее количество пользователей: {}", userStorage.getCount());
         return userStorage.getUsers();
     }
 
-    public User getUser(Integer userId) {
+    public User get(Integer userId) {
         checkUser(userId);
-        log.info("Запрошена информация о пользователе: {}", userStorage.getUser(userId).getEmail());
-        return userStorage.getUser(userId);
+        log.info("Запрошена информация о пользователе: {}", userStorage.get(userId).getEmail());
+        return userStorage.get(userId);
 
     }
 
-
     public User create(User user)  {
         userValidator.validate(user);
-        userStorage.addUser(user);
+        userStorage.add(user);
         log.info("Добавлен пользователь: {}", user.getEmail());
         return user;
     }
 
-    public User updateUser(User user) {
+    public User update(User user) {
         userValidator.validate(user);
         if (user.getId() == null) {
             throw  new UserNotFoundException("Идентификатор пользователя отсутствует, невозможно обновить данные. " +
@@ -49,37 +48,37 @@ public class UserService {
         if (!userStorage.containsId(user.getId())) {
             throw  new UserNotFoundException("Такого пользователя ещё нет, невозможно обновить!");
         }
-        userStorage.upDateUser(user);
+        userStorage.update(user);
         log.info("Информация о пользователе обнолвена: {}", user.getEmail());
         return user;
     }
 
     public void addToFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
-        User user = userStorage.getUser(id);
+        User user = userStorage.get(id);
         user.getFriends().add(friendId);
-        userStorage.getUser(friendId).getFriends().add(user.getId());
-        log.info("Пользователи: {} и {} теперь друзья", user.getEmail(), userStorage.getUser(friendId).getEmail());
+        userStorage.get(friendId).getFriends().add(user.getId());
+        log.info("Пользователи: {} и {} теперь друзья", user.getEmail(), userStorage.get(friendId).getEmail());
     }
 
     public void deleteFromFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
-        User user = userStorage.getUser(id);
+        User user = userStorage.get(id);
         user.getFriends().remove(friendId);
-        userStorage.getUser(friendId).getFriends().remove(user.getId());
-        log.info("Пользователи: {} и {} теперь не друзья", user.getEmail(), userStorage.getUser(friendId).getEmail());
+        userStorage.get(friendId).getFriends().remove(user.getId());
+        log.info("Пользователи: {} и {} теперь не друзья", user.getEmail(), userStorage.get(friendId).getEmail());
     }
 
     public Set<User> getFriends(Integer id) {
         checkUser(id);
-        return userStorage.getUser(id).getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
+        return userStorage.get(id).getFriends().stream().map(userStorage::get).collect(Collectors.toSet());
     }
 
     public Set<User> getCommonFriends(Integer id, Integer otherId) {
         checkUser(id, otherId);
-        Set<Integer> friends = userStorage.getUser(id).getFriends();
-        Set<Integer> otherFriends = userStorage.getUser(otherId).getFriends();
-        return friends.stream().filter(otherFriends::contains).map(userStorage::getUser).collect(Collectors.toSet());
+        Set<Integer> friends = userStorage.get(id).getFriends();
+        Set<Integer> otherFriends = userStorage.get(otherId).getFriends();
+        return friends.stream().filter(otherFriends::contains).map(userStorage::get).collect(Collectors.toSet());
     }
     private void checkUser(Integer id) {
         if (!userStorage.containsId(id)) {

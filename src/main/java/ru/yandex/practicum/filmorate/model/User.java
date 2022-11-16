@@ -22,7 +22,7 @@ public class User {
     @JsonIgnore
     private final Set<Integer> favoriteMovies = new HashSet<>();
     @NotNull
-    @Email
+    @Email(message = "Формат электронной почты указан неверно.")
     private String email;
     @NotBlank(message = "Логин не может быть пустым.")
     @Pattern(regexp = "^\\S*$", message = "Логин не может содержать пробелы.")

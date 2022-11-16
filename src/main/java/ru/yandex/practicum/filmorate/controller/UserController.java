@@ -23,8 +23,8 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    public User getUser(@PathVariable Integer userId) {
-        return userService.getUser(userId);
+    public User get(@PathVariable Integer userId) {
+        return userService.get(userId);
     }
 
     @PostMapping(value = "/users")
@@ -34,7 +34,7 @@ public class UserController {
 
     @PutMapping(value = "/users")
     public User put(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+        return userService.update(user);
     }
 
     @PutMapping(value = "/users/{id}/friends/{friendId}")
