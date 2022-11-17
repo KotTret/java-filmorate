@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

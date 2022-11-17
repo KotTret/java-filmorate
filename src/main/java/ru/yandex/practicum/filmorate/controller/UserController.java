@@ -3,10 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.IdGenerator;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.model.User;
-import org.apache.commons.validator.routines.EmailValidator;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -16,48 +14,46 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final Map<Integer, User> users = new HashMap<>();
-    private final IdGenerator idGenerator;
-    private final static EmailValidator emailValidator =  EmailValidator.getInstance();
+    private  final UserService userService;
+
 
     @GetMapping("/users")
     public List<User> findAll() {
-        log.info("Текущее количество пользователей: {}", users.size());
+        return userService.findAll();
+    }
 
-        return new ArrayList<User>(users.values());
+    @GetMapping("/users/{userId}")
+    public User get(@PathVariable Integer userId) {
+        return userService.get(userId);
     }
 
     @PostMapping(value = "/users")
     public User create(@Valid @RequestBody User user)  {
-        validate(user);
-        user.setId(idGenerator.getId());
-        users.put(user.getId(), user);
-        log.info("Добавлен пользователь: {}", user.getEmail());
-        return user;
-
+        return userService.create(user);
     }
 
     @PutMapping(value = "/users")
     public User put(@Valid @RequestBody User user) {
-        validate(user);
-        users.put(user.getId(), user);
-        log.info("Информация о пользователе обнолвена: {}", user.getEmail());
-        return user;
+        return userService.update(user);
     }
 
-
-    public void validate(User user)  {
-
-        if (user.getId() != null && !users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователь не найден");
-        }
-
-        if (!emailValidator.isValid(user.getEmail())) {
-            throw new ValidationException("Неверно указан адрес электронной почты.");
-        }
-
-        if(user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    @PutMapping(value = "/users/{id}/friends/{friendId}")
+    public void addToFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.addToFriends(id, friendId);
     }
+
+    @DeleteMapping(value = "/users/{id}/friends/{friendId}")
+    public void deleteFromFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.deleteFromFriends(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Set<User> getFriends(@PathVariable Integer id) {
+        return userService.getFriends(id);
+    }
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Set<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
 }
