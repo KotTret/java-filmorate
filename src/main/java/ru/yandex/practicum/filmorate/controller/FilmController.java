@@ -43,11 +43,6 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
-    /*Привет, подскажи ещё, пожалуйста, можно как-то красиво и элегантно проверять, что переданный параметр
-    * является исключительно числом, и сразу это поймать через аннотацию, или для этого надо создавать свою,
-    * просто если сейчас передать в count не число, то вылетает MethodArgumentTypeMismatchException, или
-    * это исключение добавить в обработчик?, времени особо не было, поискал инфу, но что-то так
-    * путёвого и не нашёл, пытался и через @Pattern, но что-то не получилось*/
     @GetMapping("/films/popular")
     public List<Film> findPopular(@RequestParam(required = false, defaultValue = "10")
                                   @Positive(message = "Передаваемый параметр должен быть больше 0")
