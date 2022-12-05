@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -18,8 +17,6 @@ import java.util.*;
 public class Film {
 
     private Integer id;
-    @JsonIgnore
-    private final Set<Integer> likesOfUsers = new HashSet<>();
     @NotBlank(message = "Название фильма не может быть пустым.")
     private String name;
     @NotBlank
@@ -31,11 +28,11 @@ public class Film {
     private Integer duration;
 
     @NotNull(message = "MPA rating не может быть пустым.")
-    private String mpa;
+    private Mpa mpa = new Mpa();
 
-    private Set<Genre> genres = new HashSet<>();
-    private List<Long> likes;
-    private Long numberOfLikes;
+    private List<Genre> genres = new ArrayList<>();
+    private List<Integer> likes = new ArrayList<>();
+    private int numberOfLikes = 0;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
@@ -43,22 +40,17 @@ public class Film {
         values.put("description", description);
         values.put("release_date", releaseDate);
         values.put("duration_in_minutes", duration);
-        values.put("mpa_rating", mpa);
+        values.put("mpa_id", mpa.getId());
         values.put("number_of_likes", numberOfLikes);
         return values;
     }
-
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
-        return Objects.equals(id, film.id) && Objects.equals(name, film.name) &&
-                Objects.equals(description, film.description) &&
-                Objects.equals(releaseDate, film.releaseDate) &&
-                Objects.equals(duration, film.duration);
+        return Objects.equals(id, film.id) && Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(duration, film.duration);
     }
 
     @Override

@@ -1,9 +1,10 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.memory;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.IdGenerator;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class InMemoryUserStorage implements  UserStorage{
+public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Integer, User> users = new HashMap<>();
     private final IdGenerator idGenerator;
@@ -33,13 +34,28 @@ public class InMemoryUserStorage implements  UserStorage{
     }
 
     @Override
-    public List<User> getUsers() {
+    public void addToFriends(Integer id, Integer friendId) {
+
+    }
+
+    @Override
+    public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public int getCount() {
-        return users.size();
+    public void deleteFromFriends(Integer id, Integer friendId) {
+
+    }
+
+    @Override
+    public List<User> getFriends(Integer id) {
+        return null;
+    }
+
+    @Override
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
+        return null;
     }
 
     @Override

@@ -5,12 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +19,9 @@ public class UserService {
     private final UserValidator userValidator;
 
     public List<User> findAll() {
-        log.info("Текущее количество пользователей: {}", userStorage.getCount());
-        return userStorage.getUsers();
+        List<User> users = userStorage.findAll();
+        log.info("Текущее количество пользователей: {}", users.size());
+        return users;
     }
 
     public User get(Integer userId) {
@@ -55,30 +54,24 @@ public class UserService {
 
     public void addToFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
-        User user = userStorage.get(id);
-        user.getFriends().add(friendId);
-        userStorage.get(friendId).getFriends().add(user.getId());
-        log.info("Пользователи: {} и {} теперь друзья", user.getEmail(), userStorage.get(friendId).getEmail());
+        userStorage.addToFriends(id, friendId);
+        log.info("Пользователи: c id:{} добавил в друзья id:{}", id, friendId);
     }
 
     public void deleteFromFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
-        User user = userStorage.get(id);
-        user.getFriends().remove(friendId);
-        userStorage.get(friendId).getFriends().remove(user.getId());
-        log.info("Пользователи: {} и {} теперь не друзья", user.getEmail(), userStorage.get(friendId).getEmail());
+        userStorage.deleteFromFriends(id, friendId);
+        log.info("Пользователь: с id:{} удалил из друзей пользователя id:{}", id, friendId);
     }
 
-    public Set<User> getFriends(Integer id) {
+    public List<User> getFriends(Integer id) {
         checkUser(id);
-        return userStorage.get(id).getFriends().stream().map(userStorage::get).collect(Collectors.toSet());
+        return userStorage.getFriends(id);
     }
 
-    public Set<User> getCommonFriends(Integer id, Integer otherId) {
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
         checkUser(id, otherId);
-        Set<Integer> friends = userStorage.get(id).getFriends();
-        Set<Integer> otherFriends = userStorage.get(otherId).getFriends();
-        return friends.stream().filter(otherFriends::contains).map(userStorage::get).collect(Collectors.toSet());
+        return userStorage.getCommonFriends(id, otherId);
     }
     private void checkUser(Integer id) {
         if (!userStorage.containsId(id)) {

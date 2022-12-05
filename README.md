@@ -1,2 +1,6 @@
 # java-filmorate
-Template repository for Filmorate project.
+
+Привет :), эндпоинты и примеры запросов чуть позже опишу (хочу, более менее красиво сделать), а там вроде всё готово.
+
+![plot](./src/main/resources/db.png)
+

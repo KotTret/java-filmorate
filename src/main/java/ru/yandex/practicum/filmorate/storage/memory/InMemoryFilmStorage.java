@@ -1,14 +1,15 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.memory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.IdGenerator;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
 
 @Component
 @RequiredArgsConstructor
-public class InMemoryFilmStorage implements  FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Integer, Film> films = new HashMap<>();
 
@@ -26,13 +27,23 @@ public class InMemoryFilmStorage implements  FilmStorage{
     }
 
     @Override
-    public void delete(Integer id) {
-        films.remove(id);
+    public void putLike(Integer id, Integer userId) {
+
     }
 
     @Override
-    public int getCount() {
-        return films.size();
+    public void deleteLike(Integer id, Integer userId) {
+
+    }
+
+    @Override
+    public List<Film> findPopular(Integer count) {
+        return null;
+    }
+
+    @Override
+    public void delete(Integer id) {
+        films.remove(id);
     }
 
     @Override
