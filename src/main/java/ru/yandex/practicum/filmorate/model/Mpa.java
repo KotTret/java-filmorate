@@ -10,9 +10,9 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 public class Mpa {
-    Integer id;
+    private Integer id;
     @NotBlank(message = "Название MPA не может быть пустым.")
-    String name;
+    private String name;
 
     @Override
     public boolean equals(Object o) {

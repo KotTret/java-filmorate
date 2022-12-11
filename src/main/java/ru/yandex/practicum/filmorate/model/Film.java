@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import ru.yandex.practicum.filmorate.validation.ReleaseDate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -23,15 +24,15 @@ public class Film {
     @Size(max = 200, message = "Максимальная длина описания фильма — 200 символов.")
     private String description;
     @NotNull
+    @ReleaseDate("1895-12-28")
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительной.")
     private Integer duration;
 
     @NotNull(message = "MPA rating не может быть пустым.")
-    private Mpa mpa = new Mpa();
+    private Mpa mpa;
 
     private List<Genre> genres = new ArrayList<>();
-    private List<Integer> likes = new ArrayList<>();
     private int numberOfLikes = 0;
 
     public Map<String, Object> toMap() {
@@ -50,7 +51,10 @@ public class Film {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
-        return Objects.equals(id, film.id) && Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(duration, film.duration);
+        return Objects.equals(id, film.id) && Objects.equals(name, film.name)
+                && Objects.equals(description, film.description)
+                && Objects.equals(releaseDate, film.releaseDate)
+                && Objects.equals(duration, film.duration);
     }
 
     @Override

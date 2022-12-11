@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.validation.FilmValidator;
 
 import java.util.List;
 
@@ -19,7 +18,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final FilmValidator filmValidator;
 
     public List<Film> findAll() {
         List<Film> films = filmStorage.getFilms();
@@ -28,14 +26,12 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        filmValidator.validate(film);
         filmStorage.add(film);
         log.info("Добавлен фильм: {}", film.getName());
         return film;
     }
 
     public Film put(Film film) {
-        filmValidator.validate(film);
         if (film.getId() == null) {
             throw new FilmNotFoundException("Идентификатор фильма отсутствует, невозможно обновить фильм. Фильм не найден");
         }
