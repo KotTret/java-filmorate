@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.LikesDAO;
 import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.sql.Date;
@@ -29,6 +31,9 @@ class FilmControllerTests {
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userDbStorage;
     private final FilmDbStorage filmDbStorage;
+
+    private final GenreDbStorage genreDbStorage;
+    private final LikesDAO likesDAO;
 
     private User getUser(String email, String login) {
         return User.builder()
@@ -102,17 +107,17 @@ class FilmControllerTests {
         userDbStorage.add(getUser("kot@yandex.ru", "login"));
         userDbStorage.add(getUser("kot2@yandex.ru", "login2"));
         filmDbStorage.add(getFilm());
-        filmDbStorage.putLike(1, 1);
-        filmDbStorage.putLike(1, 2);
-        assertEquals(2, filmDbStorage.get(1).getNumberOfLikes());
-        filmDbStorage.deleteLike(1, 1);
-        assertEquals(1, filmDbStorage.get(1).getNumberOfLikes());
+        likesDAO.putLike(1, 1);
+        likesDAO.putLike(1, 2);
+        assertEquals(2, filmDbStorage.get(1).getRate());
+        likesDAO.deleteLike(1, 1);
+        assertEquals(1, filmDbStorage.get(1).getRate());
     }
 
     @Test
     void testSaveLike() {
         filmDbStorage.add(getFilm());
-        assertThrows(ObjectNotFoundException.class, () -> filmDbStorage.deleteLike(1, 2),
+        assertThrows(ObjectNotFoundException.class, () -> likesDAO.deleteLike(1, 2),
                 "Пользователь с id=-2 не ставил лайк фильму с id=1");
     }
 
@@ -127,9 +132,9 @@ class FilmControllerTests {
         userDbStorage.add(getUser("kot2@yandex.ru", "login2"));
         filmDbStorage.add(getFilm());
         filmDbStorage.add(getFilm());
-        filmDbStorage.putLike(1, 1);
-        filmDbStorage.putLike(1, 2);
-        filmDbStorage.putLike(2, 2);
+        likesDAO.putLike(1, 1);
+        likesDAO.putLike(1, 2);
+        likesDAO.putLike(2, 2);
         assertEquals(1, filmDbStorage.findPopular(1).get(0).getId());
     }
 
@@ -140,16 +145,21 @@ class FilmControllerTests {
         filmDbStorage.add(film);
         film.setGenres(List.of(Genre.builder().id(2).name("Драма").build()));
         filmDbStorage.update(film);
-        assertEquals(film.getGenres(), filmDbStorage.get(1).getGenres());
+        film.setGenres(null);
+        genreDbStorage.findGenresForFilm(film);
+        assertEquals(List.of(Genre.builder().id(2).name("Драма").build()), film.getGenres());
     }
 
     @Test
     void testFindFilmWithThreeGenres() {
         Film film = getFilm();
-        film.setGenres(List.of(Genre.builder().id(1).name("Комедия").build(),
-                Genre.builder().id(2).name("Драма").build(), Genre.builder().id(3).name("Мультфильм").build()));
+        List<Genre> genres = List.of(Genre.builder().id(1).name("Комедия").build(),
+                Genre.builder().id(2).name("Драма").build(), Genre.builder().id(3).name("Мультфильм").build());
+        film.setGenres(genres);
         filmDbStorage.add(film);
-        assertEquals(film.getGenres().size(), filmDbStorage.get(1).getGenres().size());
+        film.setGenres(null);
+        genreDbStorage.findGenresForFilm(film);
+        assertEquals(genres, film.getGenres());
     }
 
     @Test

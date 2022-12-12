@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS films
     release_date DATE,
     duration_in_minutes INTEGER,
     mpa_id INTEGER,
-    number_of_likes INTEGER,
+    rate INTEGER,
         FOREIGN KEY (mpa_id)
         REFERENCES mpa (mpa_id)
 );

@@ -33,7 +33,7 @@ public class Film {
     private Mpa mpa;
 
     private List<Genre> genres = new ArrayList<>();
-    private int numberOfLikes = 0;
+    private int rate = 0;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
@@ -42,7 +42,7 @@ public class Film {
         values.put("release_date", releaseDate);
         values.put("duration_in_minutes", duration);
         values.put("mpa_id", mpa.getId());
-        values.put("number_of_likes", numberOfLikes);
+        values.put("rate", rate);
         return values;
     }
 
@@ -61,4 +61,5 @@ public class Film {
     public int hashCode() {
         return Objects.hash(id, name, description, releaseDate, duration);
     }
+
 }

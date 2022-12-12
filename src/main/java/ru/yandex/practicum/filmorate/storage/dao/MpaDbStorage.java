@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+
 @Component
 @RequiredArgsConstructor
 public class MpaDbStorage {
@@ -17,7 +18,7 @@ public class MpaDbStorage {
 
     public Mpa findById(Integer id) {
         String sqlQuery = "select * from MPA where mpa_id = ?";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToMpa, id)
+        return jdbcTemplate.query(sqlQuery, MpaDbStorage::mapRowToMpa, id)
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new ObjectNotFoundException(String.format("MPA с id=%d не найден.", id)));
@@ -25,13 +26,14 @@ public class MpaDbStorage {
 
     public List<Mpa> findAll() {
         String sqlQuery = "select * from MPA ORDER BY mpa_id";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToMpa);
+        return jdbcTemplate.query(sqlQuery, MpaDbStorage::mapRowToMpa);
     }
 
-    private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
+    static Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
         return Mpa.builder()
                 .id(resultSet.getInt("mpa_id"))
                 .name(resultSet.getString("mpa_name"))
                 .build();
     }
+
 }

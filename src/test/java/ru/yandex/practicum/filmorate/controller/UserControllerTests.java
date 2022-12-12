@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.FriendsDAO;
 import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.sql.Date;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserControllerTests {
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userDbStorage;
+    private final FriendsDAO friendsDAO;
 
     private User getUser() {
         return User.builder()
@@ -88,10 +90,10 @@ class UserControllerTests {
         user2.setLogin("KOT");
         userDbStorage.add(user1);
         userDbStorage.add(user2);
-        userDbStorage.addToFriends(1, 2);
-        assertEquals(List.of(user2), userDbStorage.getFriends(1));
-        userDbStorage.deleteFromFriends(1, 2);
-        assertEquals(List.of(), userDbStorage.getFriends(1));
+        friendsDAO.addToFriends(1, 2);
+        assertEquals(List.of(user2), friendsDAO.getFriends(1));
+        friendsDAO.deleteFromFriends(1, 2);
+        assertEquals(List.of(), friendsDAO.getFriends(1));
 
     }
 
@@ -108,9 +110,9 @@ class UserControllerTests {
         userDbStorage.add(user1);
         userDbStorage.add(user2);
         userDbStorage.add(user3);
-        userDbStorage.addToFriends(1, 3);
-        userDbStorage.addToFriends(2, 3);
-        assertEquals(List.of(user3), userDbStorage.getCommonFriends(1, 2));
+        friendsDAO.addToFriends(1, 3);
+        friendsDAO.addToFriends(2, 3);
+        assertEquals(List.of(user3), friendsDAO.getCommonFriends(1, 2));
     }
 
 }

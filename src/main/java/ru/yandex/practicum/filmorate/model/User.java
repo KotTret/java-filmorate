@@ -14,8 +14,8 @@ import java.util.*;
 public class User {
 
     private Integer id;
-    private  List<Integer> friends = new ArrayList<>();
-    private  List<Integer> favoriteMovies = new ArrayList<>();
+/*    private  List<Integer> friends = new ArrayList<>();
+    private  List<Integer> favoriteMovies = new ArrayList<>();*/
     @NotNull
     @Email(message = "Формат электронной почты указан неверно.")
     private String email;

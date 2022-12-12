@@ -14,9 +14,6 @@ public interface FilmStorage {
 
     List<Film> getFilms();
 
-    void putLike(Integer id, Integer userId);
-
-    void deleteLike(Integer id, Integer userId);
 
     boolean containsId(Integer id);
 
