@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.dao.FriendsDAO;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final UserValidator userValidator;
-    private final FriendsDAO friendsDAO;
+    private final FriendsStorage friendsStorage;
 
     public List<User> findAll() {
         List<User> users = userStorage.findAll();
@@ -58,24 +58,24 @@ public class UserService {
             throw new ValidationException("Вы не можете добавить сами себя");
         }
         checkUser(id, friendId);
-        friendsDAO.addToFriends(id, friendId);
+        friendsStorage.addToFriends(id, friendId);
         log.info("Пользователи: c id:{} добавил в друзья id:{}", id, friendId);
     }
 
     public void deleteFromFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
-        friendsDAO.deleteFromFriends(id, friendId);
+        friendsStorage.deleteFromFriends(id, friendId);
         log.info("Пользователь: с id:{} удалил из друзей пользователя id:{}", id, friendId);
     }
 
     public List<User> getFriends(Integer id) {
         checkUser(id);
-        return friendsDAO.getFriends(id);
+        return friendsStorage.getFriends(id);
     }
 
     public List<User> getCommonFriends(Integer id, Integer otherId) {
         checkUser(id, otherId);
-        return friendsDAO.getCommonFriends(id, otherId);
+        return friendsStorage.getCommonFriends(id, otherId);
     }
     private void checkUser(Integer id) {
         if (!userStorage.containsId(id)) {

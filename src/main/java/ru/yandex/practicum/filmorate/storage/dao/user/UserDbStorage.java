@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.dao;
+package ru.yandex.practicum.filmorate.storage.dao.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -70,7 +70,7 @@ public class UserDbStorage implements UserStorage {
 
 
 
-    static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
+    public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getInt("user_id"))
                 .email(resultSet.getString("email"))

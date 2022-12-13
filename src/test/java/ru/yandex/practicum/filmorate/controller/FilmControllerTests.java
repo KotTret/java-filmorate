@@ -13,10 +13,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.dao.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.dao.LikesDAO;
-import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.dao.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.user.UserDbStorage;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -32,8 +32,8 @@ class FilmControllerTests {
     private final UserDbStorage userDbStorage;
     private final FilmDbStorage filmDbStorage;
 
-    private final GenreDbStorage genreDbStorage;
-    private final LikesDAO likesDAO;
+    private final GenreStorage genreDAO;
+    private final LikesStorage likesDAO;
 
     private User getUser(String email, String login) {
         return User.builder()
@@ -146,7 +146,7 @@ class FilmControllerTests {
         film.setGenres(List.of(Genre.builder().id(2).name("Драма").build()));
         filmDbStorage.update(film);
         film.setGenres(null);
-        genreDbStorage.findGenresForFilm(film);
+        genreDAO.findGenresForFilm(film);
         assertEquals(List.of(Genre.builder().id(2).name("Драма").build()), film.getGenres());
     }
 
@@ -158,7 +158,7 @@ class FilmControllerTests {
         film.setGenres(genres);
         filmDbStorage.add(film);
         film.setGenres(null);
-        genreDbStorage.findGenresForFilm(film);
+        genreDAO.findGenresForFilm(film);
         assertEquals(genres, film.getGenres());
     }
 

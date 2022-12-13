@@ -9,8 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.dao.FriendsDAO;
-import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.dao.user.UserDbStorage;
 
 import java.sql.Date;
 import java.util.List;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserControllerTests {
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userDbStorage;
-    private final FriendsDAO friendsDAO;
+    private final FriendsStorage friendsDAO;
 
     private User getUser() {
         return User.builder()
@@ -81,7 +81,6 @@ class UserControllerTests {
         assertEquals(users, userDbStorage.findAll());
     }
 
-
     @Test
     void testSaveAndGetFriendsAndDelete() {
         User user1 = getUser();
@@ -96,7 +95,6 @@ class UserControllerTests {
         assertEquals(List.of(), friendsDAO.getFriends(1));
 
     }
-
 
     @Test
     void testFindOneCommonFriend() {
@@ -114,5 +112,4 @@ class UserControllerTests {
         friendsDAO.addToFriends(2, 3);
         assertEquals(List.of(user3), friendsDAO.getCommonFriends(1, 2));
     }
-
 }

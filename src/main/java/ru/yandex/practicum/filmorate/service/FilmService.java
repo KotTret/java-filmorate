@@ -6,11 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.dao.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.dao.LikesDAO;
-import ru.yandex.practicum.filmorate.storage.dao.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
 
@@ -22,14 +18,14 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    private final GenreDbStorage genreDbStorage;
+    private final GenreStorage genreStorage;
 
-    private final MpaDbStorage mpaDbStorage;
-    private final LikesDAO likesDAO;
+    private final MpaStorage mpaStorage;
+    private final LikesStorage likesStorage;
 
     public List<Film> findAll() {
         List<Film> films = filmStorage.getFilms();
-        genreDbStorage.findGenresForFilm(films);
+        genreStorage.findGenresForFilm(films);
         log.info("Текущее количество фильмов: {}",films.size());
         return films;
     }
@@ -54,25 +50,25 @@ public class FilmService {
     public Film get(Integer id) {
         log.info("Запрошена информация о фильме: {}", filmStorage.get(id).getName());
         Film film = filmStorage.get(id);
-        setMpaAndGenres(film);
+        genreStorage.findGenresForFilm(film);
         return film;
     }
 
     public void putLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        likesDAO.putLike(id, userId);
+        likesStorage.putLike(id, userId);
         log.info("Пользователю: c id:{} понравился фильм: id:{}", userId, id);
     }
 
     public void deleteLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        likesDAO.deleteLike(id, userId);
+        likesStorage.deleteLike(id, userId);
         log.info("Пользователю: c id:{} удалил лайк у  фильмв: id:{}", userId, id);
     }
 
     public List<Film> findPopular(Integer count) {
         List<Film> films = filmStorage.findPopular(count);
-        genreDbStorage.findGenresForFilm(films);
+        genreStorage.findGenresForFilm(films);
         return films;
     }
 
@@ -91,7 +87,7 @@ public class FilmService {
     }
 
     private void setMpaAndGenres(Film film) {
-        film.setMpa(mpaDbStorage.findById(film.getMpa().getId()));
-        genreDbStorage.findGenresForFilm(film);
+        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
+        genreStorage.findGenresForFilm(film);
     }
 }
