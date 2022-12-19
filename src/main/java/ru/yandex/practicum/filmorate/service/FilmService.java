@@ -6,13 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.validation.FilmValidator;
+import ru.yandex.practicum.filmorate.storage.*;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,61 +17,59 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final FilmValidator filmValidator;
+
+    private final GenreStorage genreStorage;
+
+    private final MpaStorage mpaStorage;
+    private final LikesStorage likesStorage;
 
     public List<Film> findAll() {
-        log.info("Текущее количество фильмов: {}", filmStorage.getCount());
-        return filmStorage.getFilms();
+        List<Film> films = filmStorage.getFilms();
+        genreStorage.findGenresForFilm(films);
+        log.info("Текущее количество фильмов: {}",films.size());
+        return films;
     }
 
     public Film create(Film film) {
-        filmValidator.validate(film);
         filmStorage.add(film);
+        setMpaAndGenres(film);
         log.info("Добавлен фильм: {}", film.getName());
         return film;
     }
 
     public Film put(Film film) {
-        filmValidator.validate(film);
         if (film.getId() == null) {
-            throw new UserNotFoundException("Идентификатор фильма отсутствует, невозможно обновить фильм. Фильм не найден");
-        }
-        if (!filmStorage.containsId(film.getId())) {
-            throw new UserNotFoundException("Такого фильма ещё нет, невозможно обновить!");
+            throw new FilmNotFoundException("Идентификатор фильма отсутствует, невозможно обновить фильм. Фильм не найден");
         }
         filmStorage.update(film);
+        setMpaAndGenres(film);
         log.info("Информация о фильме обнолвена: {}", film.getName());
         return film;
     }
 
     public Film get(Integer id) {
-        checkFilm(id);
         log.info("Запрошена информация о фильме: {}", filmStorage.get(id).getName());
-        return filmStorage.get(id);
+        Film film = filmStorage.get(id);
+        genreStorage.findGenresForFilm(film);
+        return film;
     }
 
     public void putLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        filmStorage.get(id).getLikesOfUsers().add(userId);
-        userStorage.get(userId).getFavoriteMovies().add(id);
-        log.info("Пользователю: {} понравился фильм: {}", userStorage.get(userId).getEmail(),
-                filmStorage.get(id).getName());
+        likesStorage.putLike(id, userId);
+        log.info("Пользователю: c id:{} понравился фильм: id:{}", userId, id);
     }
 
     public void deleteLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        filmStorage.get(id).getLikesOfUsers().remove(userId);
-        userStorage.get(userId).getFavoriteMovies().remove(id);
-        log.info("Пользователю: {} удалил лайк у  фильмв: {}", userStorage.get(userId).getEmail(),
-                filmStorage.get(id).getName());
+        likesStorage.deleteLike(id, userId);
+        log.info("Пользователю: c id:{} удалил лайк у  фильмв: id:{}", userId, id);
     }
 
     public List<Film> findPopular(Integer count) {
-        List<Film> films = filmStorage.getFilms();
-        return films.stream()
-                .sorted(Comparator.comparing(o -> -o.getLikesOfUsers().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        List<Film> films = filmStorage.findPopular(count);
+        genreStorage.findGenresForFilm(films);
+        return films;
     }
 
 
@@ -92,5 +86,8 @@ public class FilmService {
         checkFilm(idFilm);
     }
 
-
+    private void setMpaAndGenres(Film film) {
+        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
+        genreStorage.findGenresForFilm(film);
+    }
 }

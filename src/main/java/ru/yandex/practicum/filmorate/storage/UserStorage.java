@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -12,9 +12,7 @@ public interface UserStorage {
 
     void delete(Integer id);
 
-    List<User> getUsers();
-
-    int getCount();
+    List<User> findAll();
 
     User get(Integer id);
 

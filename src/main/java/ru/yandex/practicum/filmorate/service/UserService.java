@@ -4,13 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,16 +20,18 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final UserValidator userValidator;
+    private final FriendsStorage friendsStorage;
 
     public List<User> findAll() {
-        log.info("Текущее количество пользователей: {}", userStorage.getCount());
-        return userStorage.getUsers();
+        List<User> users = userStorage.findAll();
+        log.info("Текущее количество пользователей: {}", users.size());
+        return users;
     }
 
     public User get(Integer userId) {
-        checkUser(userId);
-        log.info("Запрошена информация о пользователе: {}", userStorage.get(userId).getEmail());
-        return userStorage.get(userId);
+        User user = userStorage.get(userId);
+        log.info("Запрошена информация о пользователе: {}", user.getEmail());
+        return user;
 
     }
 
@@ -45,40 +48,34 @@ public class UserService {
             throw  new UserNotFoundException("Идентификатор пользователя отсутствует, невозможно обновить данные. " +
                     "Пользователь не найден");
         }
-        if (!userStorage.containsId(user.getId())) {
-            throw  new UserNotFoundException("Такого пользователя ещё нет, невозможно обновить!");
-        }
         userStorage.update(user);
         log.info("Информация о пользователе обнолвена: {}", user.getEmail());
         return user;
     }
 
     public void addToFriends(Integer id, Integer friendId) {
+        if (Objects.equals(id, friendId)) {
+            throw new ValidationException("Вы не можете добавить сами себя");
+        }
         checkUser(id, friendId);
-        User user = userStorage.get(id);
-        user.getFriends().add(friendId);
-        userStorage.get(friendId).getFriends().add(user.getId());
-        log.info("Пользователи: {} и {} теперь друзья", user.getEmail(), userStorage.get(friendId).getEmail());
+        friendsStorage.addToFriends(id, friendId);
+        log.info("Пользователи: c id:{} добавил в друзья id:{}", id, friendId);
     }
 
     public void deleteFromFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
-        User user = userStorage.get(id);
-        user.getFriends().remove(friendId);
-        userStorage.get(friendId).getFriends().remove(user.getId());
-        log.info("Пользователи: {} и {} теперь не друзья", user.getEmail(), userStorage.get(friendId).getEmail());
+        friendsStorage.deleteFromFriends(id, friendId);
+        log.info("Пользователь: с id:{} удалил из друзей пользователя id:{}", id, friendId);
     }
 
-    public Set<User> getFriends(Integer id) {
+    public List<User> getFriends(Integer id) {
         checkUser(id);
-        return userStorage.get(id).getFriends().stream().map(userStorage::get).collect(Collectors.toSet());
+        return friendsStorage.getFriends(id);
     }
 
-    public Set<User> getCommonFriends(Integer id, Integer otherId) {
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
         checkUser(id, otherId);
-        Set<Integer> friends = userStorage.get(id).getFriends();
-        Set<Integer> otherFriends = userStorage.get(otherId).getFriends();
-        return friends.stream().filter(otherFriends::contains).map(userStorage::get).collect(Collectors.toSet());
+        return friendsStorage.getCommonFriends(id, otherId);
     }
     private void checkUser(Integer id) {
         if (!userStorage.containsId(id)) {

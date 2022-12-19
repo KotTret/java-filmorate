@@ -1,13 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -17,10 +14,6 @@ import java.util.Set;
 public class User {
 
     private Integer id;
-    @JsonIgnore
-    private final Set<Integer> friends = new HashSet<>();
-    @JsonIgnore
-    private final Set<Integer> favoriteMovies = new HashSet<>();
     @NotNull
     @Email(message = "Формат электронной почты указан неверно.")
     private String email;
@@ -32,6 +25,15 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
 
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", email);
+        values.put("login", login);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -49,6 +51,5 @@ public class User {
         return Objects.hash(id, email, login, name, birthday);
     }
 }
-
 
 
