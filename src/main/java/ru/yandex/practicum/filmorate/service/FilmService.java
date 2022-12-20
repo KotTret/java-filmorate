@@ -90,4 +90,9 @@ public class FilmService {
         film.setMpa(mpaStorage.findById(film.getMpa().getId()));
         genreStorage.findGenresForFilm(film);
     }
+
+    public void delete(Integer id) {
+        checkFilm(id);
+        filmStorage.delete(id);
+    }
 }

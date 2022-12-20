@@ -41,6 +41,11 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
+    @DeleteMapping(value = "/films/{filmId}")
+    public void delete(@PathVariable Integer filmId) {
+        filmService.delete(filmId);
+    }
+
     @GetMapping("/films/popular")
     public List<Film> findPopular(@RequestParam(required = false, defaultValue = "10")
                                   @Positive(message = "Передаваемый параметр должен быть больше 0")
