@@ -16,7 +16,6 @@ public class LikesDAO  implements LikesStorage {
     public void putLike(Integer id, Integer userId) {
         String sqlQuery = "insert into film_likes(FILM_ID, USER_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, userId);
-
         setRate(id);
     }
     @Override
@@ -30,7 +29,7 @@ public class LikesDAO  implements LikesStorage {
     }
 
     private void setRate(Integer filmId) {
-        String sqlQuery = "update FILMS f set rate = (select count(l.user_id) " +
+        String sqlQuery = "update FILMS f set rate = f.rate +  (select count(l.user_id) " +
                 "from FILM_LIKES l where l.film_id = f.film_id) where film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
