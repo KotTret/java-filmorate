@@ -93,8 +93,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilmsByDirector(String query) {
-        return null;
+        query = query + "%";
+        String sqlQuery = "SELECT * FROM DIRECTORS AS d join FILMS AS f ON d.DIRECTOR_ID = f.DIRECTOR_ID " +
+                "JOIN MPA M on f.MPA_ID = M.MPA_ID WHERE d.NAME LIKE ? ";
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
     }
+
 
 
     @Override
