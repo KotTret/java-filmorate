@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -80,6 +81,19 @@ public class FilmDbStorage implements FilmStorage {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new FilmNotFoundException(String.format("Фильм с id=%d не найден.", id)));
+    }
+
+    @Override
+    public List<Film> searchFilmsByTitle(String query) {
+        query = query + "%";
+        String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID WHERE f.NAME LIKE ? ";
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
+    }
+
+
+    @Override
+    public List<Film> searchFilmsByDirector(String query) {
+        return null;
     }
 
 
