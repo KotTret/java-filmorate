@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Reviews;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -66,5 +67,41 @@ public class FilmController {
     @GetMapping(value = "/films/director/{directorId}")
     public List<Film> getFilmsByDirector(@Valid @PathVariable Integer directorId, @RequestParam String sortBy){
         return filmService.getFilmsByDirector(directorId,sortBy);
+    }
+
+    @GetMapping("/reviews")
+    public List<Reviews> findAllReviews() {
+        return filmService.findAllReviews();
+    }
+
+    @GetMapping("/reviews?")
+    public List<Reviews> getReviewsById(@RequestParam Integer filmId, @RequestParam(defaultValue = "10") Integer count) {
+        return filmService.getReviewByFilmId(filmId, count);
+    }
+
+    @GetMapping("/reviews/{reviewId}")
+    public Reviews getReviewsByUrlId(@PathVariable Integer reviewId) {
+        return filmService.getReviewById(reviewId);
+    }
+
+    @PostMapping(value = "/reviews")
+    public Reviews addReviews(@Valid @RequestBody Reviews reviews) {
+        return filmService.addReviews(reviews);
+    }
+
+    @PutMapping(value = "/reviews")
+    public Reviews updateReviews(@Valid @RequestBody Reviews reviews) {
+        return filmService.updateReviews(reviews);
+    }
+
+    @PutMapping(value = "/reviews/{reviewId}/{isPositive}/{userId}")
+    public Reviews updateReviews(@PathVariable Integer reviewId, @PathVariable String isPositive,
+                              @PathVariable Integer userId) {
+        return filmService.updateReviewsIsPositive(reviewId, isPositive, userId);
+    }
+
+    @DeleteMapping(value = "/reviews/{reviewId}")
+    public void deleteReviews(@PathVariable Integer reviewId) {
+        filmService.deleteReviews(reviewId);
     }
 }
