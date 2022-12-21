@@ -72,6 +72,21 @@ public class FilmService {
         return films;
     }
 
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        checkUser(userId);
+        checkUser(friendId);
+
+        List<Film> commonFilms = filmStorage.getCommonFilms(userId,  friendId);
+
+        return commonFilms;
+    }
+
+    private void checkUser(Integer id) {
+        if (!userStorage.containsId(id)) {
+            throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
+        }
+    }
+
 
     private void checkFilm(Integer id) {
         if (!filmStorage.containsId(id)) {
