@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.event.Event;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
@@ -68,6 +71,12 @@ public class UserDbStorage implements UserStorage {
         return !jdbcTemplate.queryForList(sqlQuery, Integer.class, id).isEmpty();
     }
 
+    @Override
+    public Event getFeed(Integer id) {
+        String sqlQuery = "SELECT * FROM  EVENTS AS e  WHERE e.user_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToEvent, id);
+
+    }
 
 
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
@@ -78,6 +87,18 @@ public class UserDbStorage implements UserStorage {
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
+    }
+
+    private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
+        Event event = Event.builder()
+                .eventId(resultSet.getInt("event_id"))
+                .timestamp(resultSet.getTimestamp("timestamp"))
+                .userId(resultSet.getInt("user_id"))
+                .entityId(resultSet.getInt("entity_id"))
+                .build();
+              event.setEventType((EventType.valueOf(resultSet.getString("event_type"))));
+              event.setOperation((Operation.valueOf((resultSet.getString("operation")))));
+    return event;
     }
 
 }
