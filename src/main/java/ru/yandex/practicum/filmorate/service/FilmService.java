@@ -136,25 +136,15 @@ public class FilmService {
             log.info("Поиск фильмов по режиссеру и названию: {}", query);
             films.addAll(filmStorage.searchFilmsByDirector(query));
             films.addAll(filmStorage.searchFilmsByTitle(query));
-            genreStorage.findGenresForFilm(films);
-            directorStorage.findDirectorsForFilm(films);
-            return films;
-        } else {
-            if (searchBy[0].equals("director")) {
-                log.info("Поиск фильмов по режиссеру: {}", query);
-                films.addAll(filmStorage.searchFilmsByDirector(query));
-                genreStorage.findGenresForFilm(films);
-                directorStorage.findDirectorsForFilm(films);
-                return films;
-            }
-            if (searchBy[0].equals("title")) {
-                log.info("Поиск фильмов по названию: {}", query);
-                films.addAll(filmStorage.searchFilmsByTitle(query));
-                genreStorage.findGenresForFilm(films);
-                directorStorage.findDirectorsForFilm(films);
-                return films;
-            }
+        } else if (searchBy[0].equals("director")) {
+            log.info("Поиск фильмов по режиссеру: {}", query);
+            films.addAll(filmStorage.searchFilmsByDirector(query));
+        } else if (searchBy[0].equals("title")) {
+            log.info("Поиск фильмов по названию: {}", query);
+            films.addAll(filmStorage.searchFilmsByTitle(query));
         }
+        genreStorage.findGenresForFilm(films);
+        directorStorage.findDirectorsForFilm(films);
         return films;
     }
 }
