@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserDbStorage;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,13 +19,14 @@ import java.util.List;
 public class FriendsDAO implements FriendsStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final String format = "MM/dd/yyyy HH:mm:ss";
 
     @Override
     public void addToFriends(Integer id, Integer friendId) {
         String sqlQuery = "insert into USER_FRIENDS(USER_ID, FRIEND_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
         sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), id, EventType.FRIEND.name(), Operation.ADD.name(), friendId);
+        jdbcTemplate.update(sqlQuery, new SimpleDateFormat(format).format(Timestamp.from(Instant.now())), id, EventType.FRIEND.name(), Operation.ADD.name(), friendId);
 
     }
     @Override

@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public void add(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -34,19 +36,19 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void update(User user) {
         String sqlQuery = "update USERS set EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE USER_ID = ?";
-       if (jdbcTemplate.update(sqlQuery,
+        if (jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
                 user.getId()) < 1) {
-           throw  new UserNotFoundException("Такого пользователя ещё нет, невозможно обновить!");
-       }
+            throw new UserNotFoundException("Такого пользователя ещё нет, невозможно обновить!");
+        }
     }
 
     @Override
     public void delete(Integer id) {
-        String  sqlQuery = "delete from USERS where USER_ID = ?";
+        String sqlQuery = "delete from USERS where USER_ID = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
 
@@ -72,10 +74,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Event getFeed(Integer id) {
-        String sqlQuery = "SELECT * FROM  EVENTS AS e  WHERE e.user_id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToEvent, id);
-
+    public List<Event> getFeed(Integer id) {
+        String sqlQuery = "SELECT * FROM  EVENTS AS e WHERE e.user_id = ?";
+        return jdbcTemplate.query(sqlQuery, UserDbStorage::mapRowToEvent, id);
     }
 
 
@@ -89,16 +90,16 @@ public class UserDbStorage implements UserStorage {
                 .build();
     }
 
-    private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
+    private static Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
         Event event = Event.builder()
                 .eventId(resultSet.getInt("event_id"))
                 .timestamp(resultSet.getTimestamp("timestamp"))
                 .userId(resultSet.getInt("user_id"))
                 .entityId(resultSet.getInt("entity_id"))
                 .build();
-              event.setEventType((EventType.valueOf(resultSet.getString("event_type"))));
-              event.setOperation((Operation.valueOf((resultSet.getString("operation")))));
-    return event;
+        event.setEventType((EventType.valueOf(resultSet.getString("event_type"))));
+        event.setOperation((Operation.valueOf((resultSet.getString("operation")))));
+        return event;
     }
 
 }

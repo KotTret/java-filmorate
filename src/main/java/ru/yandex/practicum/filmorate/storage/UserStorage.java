@@ -19,5 +19,5 @@ public interface UserStorage {
 
     boolean containsId(Integer id);
 
-    Event getFeed(Integer id);
+    List<Event> getFeed(Integer id);
 }

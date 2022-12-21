@@ -95,7 +95,7 @@ public class UserService {
         userStorage.delete(id);
     }
 
-    public Event getFeed(Integer id) {
+    public List<Event> getFeed(Integer id) {
         return userStorage.getFeed(id);
     }
 }

@@ -24,7 +24,7 @@ public class LikesDAO  implements LikesStorage {
         sqlQuery = "update FILMS f set rate = RATE + 1 where FILM_ID = ?";
         jdbcTemplate.update(sqlQuery, id);
         sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, EventType.FRIEND.name(), Operation.ADD.name(), id);
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, EventType.LIKE.name(), Operation.ADD.name(), id);
     }
     @Override
     public void deleteLike(Integer id, Integer userId) {
