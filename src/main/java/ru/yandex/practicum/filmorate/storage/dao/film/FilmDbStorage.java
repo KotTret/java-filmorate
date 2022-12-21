@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -82,6 +83,23 @@ public class FilmDbStorage implements FilmStorage {
                 .orElseThrow(() -> new FilmNotFoundException(String.format("Фильм с id=%d не найден.", id)));
     }
 
+    @Override
+    public List<Film> searchFilmsByTitle(String query) {
+        query = query.toLowerCase();
+        query = "%" + query.substring(0,1).toUpperCase() + "%";
+        String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID WHERE f.NAME LIKE ? ";
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
+    }
+
+
+    @Override
+    public List<Film> searchFilmsByDirector(String query) {
+        query = "%" + query.toLowerCase() + "%";
+        String sqlQuery = "SELECT * FROM films f join MPA M on f.MPA_ID = M.MPA_ID  " +
+                "join FILM_DIRECTORS AS fd ON f.FILM_ID = fd.FILM_ID " +
+                "JOIN DIRECTORS AS d on fd.DIRECTOR_ID = d.DIRECTOR_ID  WHERE d.DIRECTOR_NAME LIKE ? ";
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
+    }
 
     @Override
     public List<Film> findPopular(Integer count) {

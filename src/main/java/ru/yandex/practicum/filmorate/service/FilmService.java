@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -101,7 +102,7 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
-        List<Film> films =  directorStorage.getFilmsByDirector(directorId, sortBy);
+        List<Film> films = directorStorage.getFilmsByDirector(directorId, sortBy);
         genreStorage.findGenresForFilm(films);
         directorStorage.findDirectorsForFilm(films);
         return films;
@@ -129,4 +130,21 @@ public class FilmService {
         checkFilm(idFilm);
     }
 
+    public List<Film> searchFilms(String query, String[] searchBy) {
+        List<Film> films = new ArrayList<>();
+        if (searchBy.length == 2) {
+            log.info("Поиск фильмов по режиссеру и названию: {}", query);
+            films.addAll(filmStorage.searchFilmsByDirector(query));
+            films.addAll(filmStorage.searchFilmsByTitle(query));
+        } else if (searchBy[0].equals("director")) {
+            log.info("Поиск фильмов по режиссеру: {}", query);
+            films.addAll(filmStorage.searchFilmsByDirector(query));
+        } else if (searchBy[0].equals("title")) {
+            log.info("Поиск фильмов по названию: {}", query);
+            films.addAll(filmStorage.searchFilmsByTitle(query));
+        }
+        genreStorage.findGenresForFilm(films);
+        directorStorage.findDirectorsForFilm(films);
+        return films;
+    }
 }
