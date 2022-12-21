@@ -85,7 +85,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilmsByTitle(String query) {
-        query = query + "%";
+        query = query.substring(0,1).toUpperCase() + "%";
         String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID WHERE f.NAME LIKE ? ";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
     }
@@ -93,9 +93,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilmsByDirector(String query) {
-        query = query + "%";
-        String sqlQuery = "SELECT * FROM DIRECTORS AS d join FILMS AS f ON d.DIRECTOR_ID = f.DIRECTOR_ID " +
-                "JOIN MPA M on f.MPA_ID = M.MPA_ID WHERE d.NAME LIKE ? ";
+        query = query.substring(0,1).toUpperCase() + "%";
+        String sqlQuery = "SELECT * FROM FILMS AS f join FILM_DIRECTORS AS fd ON f.FILM_ID = fd.FILM_ID " +
+                "JOIN DIRECTORS AS d on fd.DIRECTOR_ID = d.DIRECTOR_ID JOIN MPA M on f.MPA_ID = M.MPA_ID WHERE d.DIRECTOR_NAME LIKE ? ";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
     }
 
