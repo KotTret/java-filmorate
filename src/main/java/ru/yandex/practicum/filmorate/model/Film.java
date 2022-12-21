@@ -35,6 +35,8 @@ public class Film {
     private List<Genre> genres = new ArrayList<>();
     private int rate = 0;
 
+    private List<Director> directors =  new ArrayList<>();
+
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
         values.put("name", name);
