@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 public class Event {
 
     private int eventId;
-    private Timestamp timestamp;
+    private Long timestamp;
     private int userId;
     private EventType eventType;
     private Operation operation;

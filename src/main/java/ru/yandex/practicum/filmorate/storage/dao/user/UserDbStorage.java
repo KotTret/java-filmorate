@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,10 +94,12 @@ public class UserDbStorage implements UserStorage {
     private static Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
         Event event = Event.builder()
                 .eventId(resultSet.getInt("event_id"))
-                .timestamp(resultSet.getTimestamp("timestamp"))
                 .userId(resultSet.getInt("user_id"))
                 .entityId(resultSet.getInt("entity_id"))
                 .build();
+        String s = new SimpleDateFormat("MMddyyyyHHmmss").format(resultSet.getTimestamp("timestamp"));
+        System.out.println(s);
+        event.setTimestamp(Long.parseLong(s));
         event.setEventType((EventType.valueOf(resultSet.getString("event_type"))));
         event.setOperation((Operation.valueOf((resultSet.getString("operation")))));
         return event;
