@@ -105,8 +105,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, userId, friendId);
     }
 
-    static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-
+  
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
     
         return Film.builder()
