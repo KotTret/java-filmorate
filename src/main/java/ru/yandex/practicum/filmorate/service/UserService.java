@@ -88,4 +88,9 @@ public class UserService {
             throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
         }
     }
+
+    public void delete(Integer id) {
+        checkUser(id);
+        userStorage.delete(id);
+    }
 }

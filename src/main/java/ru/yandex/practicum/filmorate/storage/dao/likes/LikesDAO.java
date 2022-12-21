@@ -16,8 +16,8 @@ public class LikesDAO  implements LikesStorage {
     public void putLike(Integer id, Integer userId) {
         String sqlQuery = "insert into film_likes(FILM_ID, USER_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, userId);
-
-        setRate(id);
+        sqlQuery = "update FILMS f set rate = RATE + 1 where FILM_ID = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
     @Override
     public void deleteLike(Integer id, Integer userId) {
@@ -26,13 +26,9 @@ public class LikesDAO  implements LikesStorage {
             throw new ObjectNotFoundException(String.format("Пользователь с id=%d не ставил лайк фильму с id=%d.", userId, id));
         }
 
-       setRate(id);
+        sqlQuery = "update FILMS f set rate = RATE - 1 where FILM_ID = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
-    private void setRate(Integer filmId) {
-        String sqlQuery = "update FILMS f set rate = (select count(l.user_id) " +
-                "from FILM_LIKES l where l.film_id = f.film_id) where film_id = ?";
-        jdbcTemplate.update(sqlQuery, filmId);
-    }
 
 }

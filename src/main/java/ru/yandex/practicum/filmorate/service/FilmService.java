@@ -23,16 +23,20 @@ public class FilmService {
     private final MpaStorage mpaStorage;
     private final LikesStorage likesStorage;
 
+    private final DirectorStorage directorStorage;
+
     public List<Film> findAll() {
         List<Film> films = filmStorage.getFilms();
         genreStorage.findGenresForFilm(films);
-        log.info("Текущее количество фильмов: {}",films.size());
+        directorStorage.findDirectorsForFilm(films);
+        log.info("Текущее количество фильмов: {}", films.size());
         return films;
     }
 
     public Film create(Film film) {
         filmStorage.add(film);
         setMpaAndGenres(film);
+        setDirectors(film);
         log.info("Добавлен фильм: {}", film.getName());
         return film;
     }
@@ -43,6 +47,7 @@ public class FilmService {
         }
         filmStorage.update(film);
         setMpaAndGenres(film);
+        setDirectors(film);
         log.info("Информация о фильме обнолвена: {}", film.getName());
         return film;
     }
@@ -51,6 +56,7 @@ public class FilmService {
         log.info("Запрошена информация о фильме: {}", filmStorage.get(id).getName());
         Film film = filmStorage.get(id);
         genreStorage.findGenresForFilm(film);
+        directorStorage.findDirectorsForFilm(film);
         return film;
     }
 
@@ -69,6 +75,7 @@ public class FilmService {
     public List<Film> findPopular(Integer count) {
         List<Film> films = filmStorage.findPopular(count);
         genreStorage.findGenresForFilm(films);
+        directorStorage.findDirectorsForFilm(films);
         return films;
     }
 
@@ -88,6 +95,27 @@ public class FilmService {
     }
 
 
+    public void delete(Integer id) {
+        checkFilm(id);
+        filmStorage.delete(id);
+    }
+
+    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+        List<Film> films =  directorStorage.getFilmsByDirector(directorId, sortBy);
+        genreStorage.findGenresForFilm(films);
+        directorStorage.findDirectorsForFilm(films);
+        return films;
+    }
+
+    private void setMpaAndGenres(Film film) {
+        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
+        genreStorage.findGenresForFilm(film);
+    }
+
+    private void setDirectors(Film film) {
+        directorStorage.findDirectorsForFilm(film);
+    }
+
     private void checkFilm(Integer id) {
         if (!filmStorage.containsId(id)) {
             throw new FilmNotFoundException("Фильм не найден, проверьте верно ли указан Id");
@@ -101,8 +129,4 @@ public class FilmService {
         checkFilm(idFilm);
     }
 
-    private void setMpaAndGenres(Film film) {
-        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
-        genreStorage.findGenresForFilm(film);
-    }
 }
