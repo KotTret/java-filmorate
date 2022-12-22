@@ -94,7 +94,7 @@ public class ReviewsDbStorage implements ReviewsStorage {
         String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, EventType.REVIEW.name(),
                 Operation.UPDATE.name(), reviewId);
-        //? Нужна ли запись в ленту?
+       // ? Нужна ли запись в ленту?
     }
 
     @Override
