@@ -68,8 +68,9 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 reviews.getContent(),
                 reviews.getIsPositive(),
                 reviews.getReviewId());
+        Reviews reviews1 = getReviewsById(reviews.getReviewId());
         String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), reviews.getUserId(), EventType.REVIEW.name(),
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), reviews1.getUserId(), EventType.REVIEW.name(),
                 Operation.UPDATE.name(), reviews.getReviewId());
         return getReviewsById(reviews.getReviewId());
     }
@@ -80,21 +81,12 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 "useful = ? " +
                 "WHERE review_id = ?";
         jdbcTemplate.update(updateUseful, review.getUseful(), review.getReviewId());
-        String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), review.getUserId(), EventType.REVIEW.name(),
-                Operation.UPDATE.name(), review.getReviewId());
-        //? Нужна ли запись в ленту
-
     }
 
     @Override
     public void updateReviewsIsPositive(Integer reviewId, Boolean isPositive, Integer userId) {
         String updateReviewsIsPositive = "INSERT INTO reviews_is_positive (is_positive, review_id, user_id) VALUES (?, ?, ?)";
         jdbcTemplate.update(updateReviewsIsPositive, isPositive, reviewId, userId);
-        String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, EventType.REVIEW.name(),
-                Operation.UPDATE.name(), reviewId);
-       // ? Нужна ли запись в ленту?
     }
 
     @Override
