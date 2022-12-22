@@ -112,18 +112,6 @@ public class ReviewsDbStorage implements ReviewsStorage {
     }
 
     @Override
-    public void deleteLike(Integer reviewId, Integer userId) {
-        final String deleteLike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
-        jdbcTemplate.update(deleteLike, reviewId, userId, true);
-    }
-
-    @Override
-    public void deleteDislike(Integer reviewId, Integer userId) {
-        final String deleteDislike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
-        jdbcTemplate.update(deleteDislike, reviewId, userId, false);
-    }
-
-    @Override
     public boolean checkReview(Reviews reviews) {
         final String sqlQuery = "SELECT CASE WHEN COUNT(1) > 0 THEN TRUE ELSE FALSE END AS result " +
                 "FROM film_reviews WHERE user_id = ? AND film_id = ?";
