@@ -1,14 +1,16 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Reviews;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,6 +69,44 @@ public class FilmController {
     public List<Film> getFilmsByDirector(@Valid @PathVariable Integer directorId, @RequestParam String sortBy){
         return filmService.getFilmsByDirector(directorId,sortBy);
     }
+
+
+    @GetMapping("/reviews/{reviewId}")
+    public Reviews getReviewsByUrlId(@PathVariable Integer reviewId) {
+        return filmService.getReviewById(reviewId);
+    }
+
+    @GetMapping("/reviews")
+    public List<Reviews> findAllReviews(@RequestParam(required = false) Optional<Integer> filmId,
+                                        @RequestParam(required = false, defaultValue = "10") int count) {
+        if (filmId.isPresent()) {
+            return filmService.getReviewByFilmId(filmId.get(), count);
+        } else {
+            return filmService.findAllReviews();
+        }
+    }
+
+    @PostMapping("/reviews")
+    public Reviews addReviews(@Valid @RequestBody Reviews reviews) {
+        return filmService.addReviews(reviews);
+    }
+
+    @PutMapping("/reviews")
+    public Reviews updateReviews(@Valid @RequestBody Reviews reviews) {
+        return filmService.updateReviews(reviews);
+    }
+
+    @PutMapping(value = "/reviews/{reviewId}/{isPositive}/{userId}")
+    public void updateReviews(@PathVariable Integer reviewId, @PathVariable String isPositive,
+                                 @PathVariable Integer userId) {
+        filmService.updateReviewsIsPositive(reviewId, isPositive, userId);
+    }
+
+    @DeleteMapping(value = "/reviews/{reviewId}")
+    public void deleteReviews(@PathVariable Integer reviewId) {
+        filmService.deleteReviews(reviewId);
+    }
+
     @GetMapping("/films/search")
     public List<Film> searchFilms(@RequestParam("query") String query, @RequestParam("by") String [] searchBy) {
         return filmService.searchFilms(query,searchBy);
