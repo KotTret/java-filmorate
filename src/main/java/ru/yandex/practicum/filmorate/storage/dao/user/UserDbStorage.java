@@ -10,13 +10,10 @@ import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventType;
 import ru.yandex.practicum.filmorate.model.event.Operation;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +28,6 @@ public class UserDbStorage implements UserStorage {
                 .usingGeneratedKeyColumns("user_id");
         Integer id = simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue();
         user.setId(id);
-
     }
 
     @Override
@@ -83,7 +79,6 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, UserDbStorage::mapRowToEvent, id);
     }
 
-
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getInt("user_id"))
@@ -95,17 +90,15 @@ public class UserDbStorage implements UserStorage {
     }
 
     private static Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
-        Event event = Event.builder()
+        String timestamp = new SimpleDateFormat("MMddyyyyHHmmss")
+                .format(resultSet.getTimestamp("timestamp"));
+        return Event.builder()
                 .eventId(resultSet.getInt("event_id"))
                 .userId(resultSet.getInt("user_id"))
                 .entityId(resultSet.getInt("entity_id"))
+                .eventType((EventType.valueOf(resultSet.getString("event_type"))))
+                .operation((Operation.valueOf((resultSet.getString("operation")))))
+                .timestamp(Long.parseLong(timestamp))
                 .build();
-        String s = new SimpleDateFormat("MMddyyyyHHmmss").format(resultSet.getTimestamp("timestamp"));
-        System.out.println(s);
-        event.setTimestamp(Long.parseLong(s));
-        event.setEventType((EventType.valueOf(resultSet.getString("event_type"))));
-        event.setOperation((Operation.valueOf((resultSet.getString("operation")))));
-        return event;
     }
-
 }

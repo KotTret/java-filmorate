@@ -4,5 +4,4 @@ public enum EventType {
    LIKE,
    REVIEW,
    FRIEND
-
 }

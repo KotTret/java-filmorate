@@ -24,7 +24,8 @@ public class FriendsDAO implements FriendsStorage {
         String sqlQuery = "insert into USER_FRIENDS(USER_ID, FRIEND_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
         sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), id, EventType.FRIEND.name(), Operation.ADD.name(), friendId);
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), id, EventType.FRIEND.name(),
+                Operation.ADD.name(), friendId);
 
     }
     @Override
@@ -32,7 +33,8 @@ public class FriendsDAO implements FriendsStorage {
         String sqlQuery = "delete from USER_FRIENDS where USER_ID = ? and FRIEND_ID = ?";
         jdbcTemplate.update(sqlQuery, id, friendId);
         sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), id, EventType.FRIEND.name(), Operation.REMOVE.name(), friendId);
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), id, EventType.FRIEND.name(),
+                Operation.REMOVE.name(), friendId);
     }
     @Override
     public List<User> getFriends(Integer id) {

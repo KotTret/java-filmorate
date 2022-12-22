@@ -32,7 +32,6 @@ public class LikesDAO  implements LikesStorage {
         if (jdbcTemplate.update(sqlQuery, id, userId) < 1) {
             throw new ObjectNotFoundException(String.format("Пользователь с id=%d не ставил лайк фильму с id=%d.", userId, id));
         }
-
         sqlQuery = "update FILMS f set rate = RATE - 1 where FILM_ID = ?";
         jdbcTemplate.update(sqlQuery, id);
         sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
