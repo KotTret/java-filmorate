@@ -27,4 +27,8 @@ public interface ReviewsStorage {
     boolean checkLikeOrDislike(Integer reviewId, Integer userId, boolean check);
 
     void updateUseful(Reviews review);
+
+    void deleteLike(Integer reviewId, Integer userId);
+
+    void deleteDislike(Integer reviewId, Integer userId);
 }
