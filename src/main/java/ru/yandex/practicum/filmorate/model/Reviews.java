@@ -13,7 +13,6 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class Reviews {
-
     private Integer reviewId;
     @NotBlank(message = "Отзыв не может быть пустым.")
     private String content;

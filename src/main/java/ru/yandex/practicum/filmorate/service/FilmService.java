@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectExistsException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Reviews;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -91,7 +93,7 @@ public class FilmService {
         return commonFilms;
     }
 
-    private void checkUser(Integer id) {
+    public void checkUser(Integer id) {
         if (!userStorage.containsId(id)) {
             throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
         }
@@ -125,18 +127,14 @@ public class FilmService {
         }
     }
 
-    private void checkUserAndFilm(Integer idUser, Integer idFilm) {
+    public void checkUserAndFilm(Integer idUser, Integer idFilm) {
         if (!userStorage.containsId(idUser)) {
             throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
         }
         checkFilm(idFilm);
     }
 
-    public List<Reviews> findAllReviews() {
-        List<Reviews> reviews = reviewsStorage.findAllReviews();
-        log.info("Текущее количество отзывов: {}", reviews.size());
-        return reviews;
-    }
+    ///////////////////////////////
 
     public Reviews getReviewById(Integer reviewId) {
         checkReview(reviewId);
@@ -144,26 +142,32 @@ public class FilmService {
         return reviewsStorage.getReviewsById(reviewId);
     }
 
-    public List<Reviews> getReviewByFilmId(Integer id, Integer count) {
-        checkReview(id);
-        log.info("Запрошены отзывы на фильм: id:{}", id);
-        return reviewsStorage.getReviewByFilmId(id, count);
+    public List<Reviews> getReviewByFilmId(Integer filmId, Integer count) {
+        try {checkReviewOnFilm(filmId);
+        }catch (ObjectNotFoundException e) {
+            List<Reviews> nullPoint = new ArrayList<>();
+            return nullPoint;
+        }
+        log.info("Запрошены отзывы на фильм: id:{}", filmId);
+        return reviewsStorage.getReviewByFilmId(filmId, count);
+    }
+
+    public List<Reviews> findAllReviews(Integer count) {
+        List<Reviews> reviews = reviewsStorage.findAllReviews(count);
+        log.info("Текущее количество отзывов: {}", reviews.size());
+        return reviews;
     }
 
     public Reviews addReviews(Reviews reviews) {
         checkUserAndFilm(reviews.getUserId(), reviews.getFilmId());
+        if (reviewsStorage.checkReviewUserFilm(reviews.getUserId(), reviews.getFilmId())) {
+            throw new ObjectExistsException("Отзыв уже существует, проверьте верно ли указан Id");
+        }
         log.info("Пользователь: c id:{} оставил отзыв на фильм: id:{}", reviews.getUserId(), reviews.getFilmId());
         return reviewsStorage.addReviews(reviews);
     }
 
-    void checkReview(Integer reviewId) {
-        if (!reviewsStorage.checkReview(reviewId)) {
-            throw new ObjectNotFoundException("Отзыв не найден, проверьте верно ли указан Id");
-        }
-    }
-
     public Reviews updateReviews(Reviews reviews) {
-        checkUserAndFilm(reviews.getUserId(), reviews.getFilmId());
         checkReview(reviews.getReviewId());
         log.info("Пользователь: c id:{} обновил отзыв на фильм: id:{}", reviews.getUserId(), reviews.getFilmId());
         return reviewsStorage.updateReviews(reviews);
@@ -172,10 +176,13 @@ public class FilmService {
     public Reviews updateReviewsIsPositive(Integer reviewId, String isPositive, Integer userId) {
         checkUser(userId);
         checkReview(reviewId);
-        Reviews reviews;
+        Reviews reviews = getReviewById(reviewId);
+        checkReviewUserFilm(reviews.getUserId(), reviews.getFilmId());
         if (isPositive.equals("like")) {
+            checkLikeOrDislike(reviewId, true);
             reviews = reviewsStorage.updateReviewsIsPositive(reviewId, true, userId);
         } else if (isPositive.equals("dislike")) {
+            checkLikeOrDislike(reviewId, false);
             reviews = reviewsStorage.updateReviewsIsPositive(reviewId, false, userId);
         } else {
             throw new RuntimeException("Введены неизвестные данные");
@@ -188,6 +195,30 @@ public class FilmService {
         checkReview(reviewId);
         reviewsStorage.deleteReviews(reviewId);
         log.info("Отзыв: id:{} удален", reviewId);
+    }
+
+    private void checkReview(Integer reviewId) {
+        if (!reviewsStorage.checkReview(reviewId)) {
+            throw new ObjectNotFoundException("Отзыв не найден, проверьте верно ли указан Id");
+        }
+    }
+
+    private void checkReviewUserFilm(Integer userId, Integer filmId) {
+        if (!reviewsStorage.checkReviewUserFilm(userId, filmId)) {
+            throw new ObjectNotFoundException("Отзыв не найден, проверьте верно ли указан Id");
+        }
+    }
+
+    private void checkReviewOnFilm(Integer filmId) {
+        if (!reviewsStorage.checkReviewOnFilm(filmId)) {
+            throw new ObjectNotFoundException("Отзыв не найден, проверьте верно ли указан Id");
+        }
+    }
+
+    private void checkLikeOrDislike(Integer reviewId, boolean check) {
+        if (reviewsStorage.checkLikeOrDislike(reviewId, check)) {
+            throw new ObjectExistsException("Отзыв уже находится с данной оценкой");
+        }
     }
 
 }

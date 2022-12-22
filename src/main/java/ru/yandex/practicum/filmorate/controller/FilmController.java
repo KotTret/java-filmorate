@@ -69,35 +69,43 @@ public class FilmController {
         return filmService.getFilmsByDirector(directorId,sortBy);
     }
 
-    @GetMapping("/reviews")
-    public List<Reviews> findAllReviews() {
-        return filmService.findAllReviews();
-    }
-
-    @GetMapping("/reviews?")
-    public List<Reviews> getReviewsById(@RequestParam Integer filmId, @RequestParam(defaultValue = "10") Integer count) {
-        return filmService.getReviewByFilmId(filmId, count);
-    }
+    /////////////////////////////////
 
     @GetMapping("/reviews/{reviewId}")
     public Reviews getReviewsByUrlId(@PathVariable Integer reviewId) {
         return filmService.getReviewById(reviewId);
     }
 
-    @PostMapping(value = "/reviews")
+    @GetMapping("/reviews")
+    public List<Reviews> findAllReviews(@RequestParam(defaultValue = "0") Integer filmId,
+                                        @RequestParam(defaultValue = "0") Integer count) {
+        if (filmId > 0) {
+            if (count > 0) {
+                return filmService.getReviewByFilmId(filmId, count);
+            }
+            return filmService.getReviewByFilmId(filmId, 10);
+        } else {
+            if (count > 0) {
+                return filmService.findAllReviews(count);
+            }
+            return filmService.findAllReviews(10);
+        }
+    }
+
+    @PostMapping("/reviews")
     public Reviews addReviews(@Valid @RequestBody Reviews reviews) {
         return filmService.addReviews(reviews);
     }
 
-    @PutMapping(value = "/reviews")
+    @PutMapping("/reviews")
     public Reviews updateReviews(@Valid @RequestBody Reviews reviews) {
         return filmService.updateReviews(reviews);
     }
 
     @PutMapping(value = "/reviews/{reviewId}/{isPositive}/{userId}")
-    public Reviews updateReviews(@PathVariable Integer reviewId, @PathVariable String isPositive,
-                              @PathVariable Integer userId) {
-        return filmService.updateReviewsIsPositive(reviewId, isPositive, userId);
+    public void updateReviews(@PathVariable Integer reviewId, @PathVariable String isPositive,
+                                 @PathVariable Integer userId) {
+        filmService.updateReviewsIsPositive(reviewId, isPositive, userId);
     }
 
     @DeleteMapping(value = "/reviews/{reviewId}")

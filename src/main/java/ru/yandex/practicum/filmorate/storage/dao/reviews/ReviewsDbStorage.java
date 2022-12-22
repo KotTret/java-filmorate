@@ -18,21 +18,21 @@ public class ReviewsDbStorage implements ReviewsStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Reviews> findAllReviews() {
-        String findAllReviews = "SELECT * FROM film_reviews";
-        return jdbcTemplate.query(findAllReviews, this::mapRowToReviews);
-    }
-
-    @Override
-    public List<Reviews> getReviewByFilmId(Integer id, Integer count) {
-        String findReviewById = "SELECT * FROM film_reviews WHERE film_id = ? desc limit ?";
-        return jdbcTemplate.query(findReviewById, this::mapRowToReviews,id, count);
-    }
-
-    @Override
     public Reviews getReviewsById(Integer reviewId) {
         String findReviewById = "SELECT * FROM film_reviews WHERE review_id = ?";
         return jdbcTemplate.queryForObject(findReviewById, this::mapRowToReviews, reviewId);
+    }
+
+    @Override
+    public List<Reviews> getReviewByFilmId(Integer filmId, Integer count) {
+        String findReviewById = "SELECT * FROM film_reviews WHERE film_id = ? ORDER BY USEFUL DESC limit ?";
+        return jdbcTemplate.query(findReviewById, this::mapRowToReviews, filmId, count);
+    }
+
+    @Override
+    public List<Reviews> findAllReviews(Integer count) {
+        String findAllReviews = "SELECT * FROM film_reviews ORDER BY USEFUL DESC limit ?";
+        return jdbcTemplate.query(findAllReviews, this::mapRowToReviews, count);
     }
 
     @Override
@@ -47,16 +47,15 @@ public class ReviewsDbStorage implements ReviewsStorage {
 
     @Override
     public Reviews updateReviews(Reviews reviews) {
-        String updateReviews = "UPDATE film_reviews SET content = ?, is_positive = ?, " +
-                "user_id = ?, film_id = ?, useful = ? WHERE review_id = ?";
+        String updateReviews = "UPDATE film_reviews SET content = ?," +
+                " is_positive = ?, useful = ?" +
+                "WHERE review_id = ?";
         jdbcTemplate.update(updateReviews,
                 reviews.getContent(),
                 reviews.getIsPositive(),
-                reviews.getUserId(),
-                reviews.getFilmId(),
                 reviews.getUseful(),
                 reviews.getReviewId());
-        return getReviewsById(reviews.getReviewId());
+        return reviews;
     }
 
     @Override
@@ -76,6 +75,23 @@ public class ReviewsDbStorage implements ReviewsStorage {
     public boolean checkReview(Integer reviewId) {
         String sqlQuery = "SELECT review_id FROM film_reviews where review_id = ?";
         return !jdbcTemplate.queryForList(sqlQuery, Integer.class, reviewId).isEmpty();
+    }
+
+    @Override
+    public boolean checkReviewUserFilm(Integer userId, Integer filmId) {
+        String sqlQuery = "SELECT review_id FROM film_reviews where user_id = ? AND film_id = ?";
+        return !jdbcTemplate.queryForList(sqlQuery, Integer.class, userId, filmId).isEmpty();
+    }
+
+    @Override
+    public boolean checkReviewOnFilm(Integer filmId) {
+        String sqlQuery = "SELECT review_id FROM film_reviews where film_id = ?";
+        return !jdbcTemplate.queryForList(sqlQuery, Integer.class, filmId).isEmpty();
+    }
+
+    @Override
+    public boolean checkLikeOrDislike(Integer reviewId, boolean check) {
+        return getReviewsById(reviewId).getIsPositive() == check;
     }
 
 

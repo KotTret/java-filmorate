@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface ReviewsStorage {
 
-    List<Reviews> findAllReviews();
-
     Reviews getReviewsById(Integer id);
 
-    List<Reviews> getReviewByFilmId(Integer id, Integer count);
+    List<Reviews> getReviewByFilmId(Integer filmId, Integer count);
+
+    List<Reviews> findAllReviews(Integer count);
 
     Reviews addReviews(Reviews reviews);
 
@@ -22,4 +22,9 @@ public interface ReviewsStorage {
 
     boolean checkReview(Integer reviewId);
 
+    boolean checkReviewUserFilm(Integer userId, Integer filmId);
+
+    boolean checkReviewOnFilm(Integer filmId);
+
+    boolean checkLikeOrDislike(Integer reviewId, boolean check);
 }
