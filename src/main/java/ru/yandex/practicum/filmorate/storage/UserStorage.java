@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.event.Event;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface UserStorage {
     User get(Integer id);
 
     boolean containsId(Integer id);
+
+    List<Event> getFeed(Integer id);
 }

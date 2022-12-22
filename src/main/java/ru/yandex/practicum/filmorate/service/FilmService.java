@@ -91,9 +91,7 @@ public class FilmService {
         checkUser(userId);
         checkUser(friendId);
 
-        List<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
-
-        return commonFilms;
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public void checkUser(Integer id) {

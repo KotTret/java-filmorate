@@ -5,10 +5,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Reviews;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 import ru.yandex.practicum.filmorate.storage.ReviewsStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +53,9 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 .usingGeneratedKeyColumns("review_id");
         Integer id = simpleJdbcInsert.executeAndReturnKey(reviews.toMap()).intValue();
         reviews.setReviewId(id);
+        String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), reviews.getUserId(), EventType.REVIEW.name(),
+                Operation.ADD.name(), id);
         return reviews;
     }
 
@@ -61,6 +68,10 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 reviews.getContent(),
                 reviews.getIsPositive(),
                 reviews.getReviewId());
+        Reviews reviews1 = getReviewsById(reviews.getReviewId());
+        String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), reviews1.getUserId(), EventType.REVIEW.name(),
+                Operation.UPDATE.name(), reviews.getReviewId());
         return getReviewsById(reviews.getReviewId());
     }
 
@@ -80,8 +91,24 @@ public class ReviewsDbStorage implements ReviewsStorage {
 
     @Override
     public void deleteReviews(Integer reviewId) {
+        int userId = getReviewsById(reviewId).getUserId();
         String sqlQuery = "delete from film_reviews where review_id = ?";
         jdbcTemplate.update(sqlQuery, reviewId);
+        sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, EventType.REVIEW.name(),
+                Operation.REMOVE.name(), reviewId);
+    }
+
+    @Override
+    public void deleteLike(Integer reviewId, Integer userId) {
+        final String deleteLike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
+        jdbcTemplate.update(deleteLike, reviewId, userId, true);
+    }
+
+    @Override
+    public void deleteDislike(Integer reviewId, Integer userId) {
+        final String deleteDislike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
+        jdbcTemplate.update(deleteDislike, reviewId, userId, false);
     }
 
     @Override
