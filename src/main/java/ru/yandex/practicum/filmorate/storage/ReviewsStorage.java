@@ -10,21 +10,21 @@ public interface ReviewsStorage {
 
     List<Reviews> getReviewByFilmId(Integer filmId, Integer count);
 
-    List<Reviews> findAllReviews(Integer count);
+    List<Reviews> findAllReviews();
 
     Reviews addReviews(Reviews reviews);
 
     Reviews updateReviews(Reviews reviews);
 
-    Reviews updateReviewsIsPositive(Integer reviewId, Boolean isPositive, Integer userId);
+    void updateReviewsIsPositive(Integer reviewId, Boolean isPositive, Integer userId);
 
     void deleteReviews(Integer reviewId);
 
+    boolean checkReview(Reviews reviews);
+
     boolean checkReview(Integer reviewId);
 
-    boolean checkReviewUserFilm(Integer userId, Integer filmId);
+    boolean checkLikeOrDislike(Integer reviewId, Integer userId, boolean check);
 
-    boolean checkReviewOnFilm(Integer filmId);
-
-    boolean checkLikeOrDislike(Integer reviewId, boolean check);
+    void updateUseful(Reviews review);
 }

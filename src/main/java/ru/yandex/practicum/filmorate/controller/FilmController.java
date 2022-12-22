@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,26 +70,18 @@ public class FilmController {
         return filmService.getFilmsByDirector(directorId,sortBy);
     }
 
-    /////////////////////////////////
-
     @GetMapping("/reviews/{reviewId}")
     public Reviews getReviewsByUrlId(@PathVariable Integer reviewId) {
         return filmService.getReviewById(reviewId);
     }
 
     @GetMapping("/reviews")
-    public List<Reviews> findAllReviews(@RequestParam(defaultValue = "0") Integer filmId,
-                                        @RequestParam(defaultValue = "0") Integer count) {
-        if (filmId > 0) {
-            if (count > 0) {
-                return filmService.getReviewByFilmId(filmId, count);
-            }
-            return filmService.getReviewByFilmId(filmId, 10);
+    public List<Reviews> findAllReviews(@RequestParam(required = false) Optional<Integer> filmId,
+                                        @RequestParam(required = false, defaultValue = "10") int count) {
+        if (filmId.isPresent()) {
+            return filmService.getReviewByFilmId(filmId.get(), count);
         } else {
-            if (count > 0) {
-                return filmService.findAllReviews(count);
-            }
-            return filmService.findAllReviews(10);
+            return filmService.findAllReviews();
         }
     }
 
