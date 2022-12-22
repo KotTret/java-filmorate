@@ -76,6 +76,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Event> getFeed(Integer id) {
+        if(!containsId(id)) {
+            throw new UserNotFoundException(String.format("Пользователь с id=%d не найден.", id));
+        }
         String sqlQuery = "SELECT * FROM  EVENTS AS e WHERE e.user_id = ?";
         return jdbcTemplate.query(sqlQuery, UserDbStorage::mapRowToEvent, id);
     }
