@@ -45,7 +45,6 @@
 
 ## Схема БД и примеры запросов
 
-![plot](./src/main/resources/db.png)
 
 <details>
   <summary><h3>Для пользователей:</h3></summary>

@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -27,9 +26,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void add(Film film) {
-            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("films")
-                    .usingGeneratedKeyColumns("film_id");
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("films")
+                .usingGeneratedKeyColumns("film_id");
         Integer id = simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue();
         film.setId(id);
         setMpaAndGenres(film);
@@ -40,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
     public void update(Film film) {
         String sqlQuery = "UPDATE films SET NAME = ?, RELEASE_DATE = ?, DESCRIPTION = ?, DURATION_IN_MINUTES = ?" +
                 ", MPA_ID = ?, RATE = ? WHERE FILM_ID = ?";
-       if(jdbcTemplate.update(sqlQuery,
+        if (jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getReleaseDate(),
                 film.getDescription(),
@@ -48,8 +47,8 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getRate(),
                 film.getId()) < 1) {
-           throw new FilmNotFoundException("Такого фильма ещё нет, невозможно обновить!");
-       }
+            throw new FilmNotFoundException("Такого фильма ещё нет, невозможно обновить!");
+        }
         setMpaAndGenres(film);
         setDirectors(film);
     }
@@ -86,7 +85,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchFilmsByTitle(String query) {
         query = query.toLowerCase();
-        query = "%" + query.substring(0,1).toUpperCase() + "%";
+        query = "%" + query.substring(0, 1).toUpperCase() + "%";
         String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID WHERE f.NAME LIKE ? ";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
     }
@@ -105,7 +104,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         StringBuilder getPopularFilmsSql = new StringBuilder();
         getPopularFilmsSql.append(
-                "SELECT * "+
+                "SELECT * " +
                         "FROM films AS f " +
                         "JOIN mpa AS m ON m.mpa_id = f.mpa_id " +
                         "LEFT JOIN " +
@@ -141,9 +140,9 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, userId, friendId);
     }
 
-  
+
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-    
+
         return Film.builder()
                 .id(resultSet.getInt("film_id"))
                 .name(resultSet.getString("name"))
@@ -168,8 +167,8 @@ public class FilmDbStorage implements FilmStorage {
             jdbcTemplate.batchUpdate("MERGE INTO film_genres values (?, ?)", new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setInt( 1, film.getId());
-                    ps.setInt( 2, idGenres.get(i));
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, idGenres.get(i));
                 }
 
                 @Override
@@ -191,8 +190,8 @@ public class FilmDbStorage implements FilmStorage {
             jdbcTemplate.batchUpdate("MERGE INTO FILM_DIRECTORS values (?, ?)", new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setInt( 1, film.getId());
-                    ps.setInt( 2, idDirectors.get(i));
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, idDirectors.get(i));
                 }
 
                 @Override
