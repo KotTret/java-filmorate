@@ -33,6 +33,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void update(User user) {
         String sqlQuery = "update USERS set EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE USER_ID = ?";
+
         if (jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),

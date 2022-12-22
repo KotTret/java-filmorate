@@ -81,6 +81,7 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 "useful = ? " +
                 "WHERE review_id = ?";
         jdbcTemplate.update(updateUseful, review.getUseful(), review.getReviewId());
+        String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -141,7 +142,6 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 reviewId, userId, check).get(0);
         return Boolean.parseBoolean(result);
     }
-
 
     private Reviews mapRowToReviews(ResultSet resultSet, int rowNum) throws SQLException {
         return Reviews.builder()
