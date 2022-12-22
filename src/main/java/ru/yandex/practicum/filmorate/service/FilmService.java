@@ -191,6 +191,26 @@ public class FilmService {
         log.info("Отзыв: id:{} обновлен", reviewId);
     }
 
+    public void deleteIsPositive(Integer reviewId, String isPositive, Integer userId) {
+        checkUser(userId);
+        checkReview(reviewId);
+        Reviews reviews = getReviewById(reviewId);
+        if (isPositive.equals("like")) {
+            checkLikeOrDislike(reviewId, userId, true);
+            reviews.setUseful(reviews.getUseful() - 1);
+            reviewsStorage.updateUseful(reviews);
+            reviewsStorage.deleteLike(reviewId, userId);
+        } else if (isPositive.equals("dislike")) {
+            checkLikeOrDislike(reviewId, userId, false);
+            reviews.setUseful(reviews.getUseful() + 1);
+            reviewsStorage.updateUseful(reviews);
+            reviewsStorage.deleteDislike(reviewId, userId);
+        } else {
+            throw new RuntimeException("Введены неизвестные данные");
+        }
+        log.info("Отзыв: id:{} обновлен", reviewId);
+    }
+
     public void deleteReviews(Integer reviewId) {
         checkReview(reviewId);
         reviewsStorage.deleteReviews(reviewId);

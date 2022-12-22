@@ -107,6 +107,12 @@ public class FilmController {
         filmService.deleteReviews(reviewId);
     }
 
+    @DeleteMapping("/reviews/{reviewId}/{isPositive}/{userId}")
+    public void deleteIsPositive(@PathVariable Integer reviewId, @PathVariable String isPositive,
+                           @PathVariable Integer userId) {
+        filmService.deleteIsPositive(reviewId, isPositive, userId);
+    }
+
     @GetMapping("/films/search")
     public List<Film> searchFilms(@RequestParam("query") String query, @RequestParam("by") String [] searchBy) {
         return filmService.searchFilms(query,searchBy);
