@@ -81,7 +81,6 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 "useful = ? " +
                 "WHERE review_id = ?";
         jdbcTemplate.update(updateUseful, review.getUseful(), review.getReviewId());
-        String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -98,18 +97,6 @@ public class ReviewsDbStorage implements ReviewsStorage {
         sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, EventType.REVIEW.name(),
                 Operation.REMOVE.name(), reviewId);
-    }
-
-    @Override
-    public void deleteLike(Integer reviewId, Integer userId) {
-        final String deleteLike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
-        jdbcTemplate.update(deleteLike, reviewId, userId, true);
-    }
-
-    @Override
-    public void deleteDislike(Integer reviewId, Integer userId) {
-        final String deleteDislike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
-        jdbcTemplate.update(deleteDislike, reviewId, userId, false);
     }
 
     @Override
@@ -166,6 +153,7 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 reviewId, userId, check).get(0);
         return Boolean.parseBoolean(result);
     }
+
 
     private Reviews mapRowToReviews(ResultSet resultSet, int rowNum) throws SQLException {
         return Reviews.builder()
