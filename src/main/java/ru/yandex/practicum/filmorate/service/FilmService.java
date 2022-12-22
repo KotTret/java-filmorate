@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Reviews;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -133,6 +134,7 @@ public class FilmService {
         checkFilm(idFilm);
     }
 
+
     public Reviews getReviewById(Integer reviewId) {
         checkReview(reviewId);
         log.info("Запрошен отзыв: id:{}", reviewId);
@@ -202,6 +204,25 @@ public class FilmService {
         if (reviewsStorage.checkLikeOrDislike(reviewId, userId, check)) {
             throw new ObjectExistsException("Отзыв уже находится с данной оценкой");
         }
+    }
+
+
+    public List<Film> searchFilms(String query, String[] searchBy) {
+        List<Film> films = new ArrayList<>();
+        if (searchBy.length == 2) {
+            log.info("Поиск фильмов по режиссеру и названию: {}", query);
+            films.addAll(filmStorage.searchFilmsByDirector(query));
+            films.addAll(filmStorage.searchFilmsByTitle(query));
+        } else if (searchBy[0].equals("director")) {
+            log.info("Поиск фильмов по режиссеру: {}", query);
+            films.addAll(filmStorage.searchFilmsByDirector(query));
+        } else if (searchBy[0].equals("title")) {
+            log.info("Поиск фильмов по названию: {}", query);
+            films.addAll(filmStorage.searchFilmsByTitle(query));
+        }
+        genreStorage.findGenresForFilm(films);
+        directorStorage.findDirectorsForFilm(films);
+        return films;
     }
 
 }

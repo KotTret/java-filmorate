@@ -70,6 +70,7 @@ public class FilmController {
         return filmService.getFilmsByDirector(directorId,sortBy);
     }
 
+
     @GetMapping("/reviews/{reviewId}")
     public Reviews getReviewsByUrlId(@PathVariable Integer reviewId) {
         return filmService.getReviewById(reviewId);
@@ -104,5 +105,9 @@ public class FilmController {
     @DeleteMapping(value = "/reviews/{reviewId}")
     public void deleteReviews(@PathVariable Integer reviewId) {
         filmService.deleteReviews(reviewId);
+
+    @GetMapping("/films/search")
+    public List<Film> searchFilms(@RequestParam("query") String query, @RequestParam("by") String [] searchBy) {
+        return filmService.searchFilms(query,searchBy);
     }
 }
