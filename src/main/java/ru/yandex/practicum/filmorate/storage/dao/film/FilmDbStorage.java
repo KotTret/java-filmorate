@@ -102,11 +102,29 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findPopular(Integer count) {
-        String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID order by RATE desc limit ?";
-        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        StringBuilder getPopularFilmsSql = new StringBuilder();
+        getPopularFilmsSql.append(
+                "SELECT * "+
+                        "FROM films AS f " +
+                        "JOIN mpa AS m ON m.mpa_id = f.mpa_id " +
+                        "LEFT JOIN " +
+                        "(SELECT film_id, COUNT(user_id) AS rate " +
+                        "FROM film_likes " +
+                        "GROUP BY film_id) AS fl ON (fl.film_id = f.film_id) ");
+        if (genreId != null) {
+            getPopularFilmsSql.append(
+                    "JOIN film_genres AS g ON (g.film_id = f.film_id AND g.genre_id = " + genreId + ") ");
+        }
+        if (year != null) {
+            getPopularFilmsSql.append(
+                    "WHERE EXTRACT(YEAR from CAST(f.release_date AS DATE)) = " + year + " ");
+        }
+        getPopularFilmsSql.append(
+                "ORDER BY fl.rate DESC " +
+                        "LIMIT ?");
+        return jdbcTemplate.query(getPopularFilmsSql.toString(), FilmDbStorage::mapRowToFilm, count);
     }
-
 
     @Override
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
