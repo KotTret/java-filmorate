@@ -18,7 +18,7 @@ public interface FilmStorage {
 
     boolean containsId(Integer id);
 
-    List<Film> findPopular(Integer count);
+    List<Film> getPopularFilms(Integer count, Integer genreId, Integer year);
 
     Film get(Integer id);
     List<Film> getCommonFilms(Integer userId, Integer friendId);

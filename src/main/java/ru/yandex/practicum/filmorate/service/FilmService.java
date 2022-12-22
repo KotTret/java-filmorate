@@ -77,8 +77,11 @@ public class FilmService {
         log.info("Пользователю: c id:{} удалил лайк у  фильмв: id:{}", userId, id);
     }
 
-    public List<Film> findPopular(Integer count) {
-        List<Film> films = filmStorage.findPopular(count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        if (year != null && year < 0) {
+            throw new ObjectNotFoundException("Год не может быть отрицательным");
+        }
+        List<Film> films = filmStorage.getPopularFilms(count, genreId, year);
         genreStorage.findGenresForFilm(films);
         directorStorage.findDirectorsForFilm(films);
         return films;
