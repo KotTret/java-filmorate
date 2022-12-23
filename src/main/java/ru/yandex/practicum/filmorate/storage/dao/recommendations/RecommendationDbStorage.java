@@ -23,7 +23,7 @@ public class RecommendationDbStorage implements RecommendationStorage {
     @Override
     public List<Integer[]> getAllLikes() {
         List<Integer[]> allLikes = new ArrayList<>();
-        jdbcTemplate.query("select * from film_likes", (ResultSet rs) -> {
+        jdbcTemplate.query("SELECT * FROM film_likes", (ResultSet rs) -> {
             Integer[] like = {rs.getInt("film_id"), rs.getInt("user_id")};
             allLikes.add(like);
             while (rs.next()) {
