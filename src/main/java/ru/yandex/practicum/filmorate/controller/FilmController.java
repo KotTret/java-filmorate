@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class FilmController {
     @GetMapping("/films/popular")
     public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") Integer count,
                                       @RequestParam(required = false) Integer genreId,
-                                      @RequestParam(required = false) Integer year) {
+                                      @RequestParam(required = false) @Min(1895) Integer year) {
         return filmService.getPopularFilms(count, genreId, year);
     }
 
