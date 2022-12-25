@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.ArrayList;
@@ -16,16 +18,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
-
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
     private final GenreStorage genreStorage;
-
     private final MpaStorage mpaStorage;
     private final LikesStorage likesStorage;
-
     private final DirectorStorage directorStorage;
+    private final FeedStorage feedStorage;
 
     public List<Film> findAll() {
         List<Film> films = filmStorage.getFilms();
@@ -65,11 +64,13 @@ public class FilmService {
     public void putLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
         likesStorage.putLike(id, userId);
+        feedStorage.newFeed(id, userId, EventType.LIKE, Operation.ADD);
         log.info("Пользователю: c id:{} понравился фильм: id:{}", userId, id);
     }
 
     public void deleteLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
+        feedStorage.newFeed(id, userId, EventType.LIKE, Operation.REMOVE);
         likesStorage.deleteLike(id, userId);
         log.info("Пользователю: c id:{} удалил лайк у  фильмв: id:{}", userId, id);
     }
@@ -96,7 +97,6 @@ public class FilmService {
             throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
         }
     }
-
 
     public void delete(Integer id) {
         checkFilm(id);
@@ -149,5 +149,4 @@ public class FilmService {
         directorStorage.findDirectorsForFilm(films);
         return films;
     }
-
 }

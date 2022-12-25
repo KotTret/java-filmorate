@@ -70,16 +70,6 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT USER_ID FROM USERS where USER_ID = ?";
         return !jdbcTemplate.queryForList(sqlQuery, Integer.class, id).isEmpty();
     }
-
-    @Override
-    public List<Event> getFeed(Integer id) {
-        if(!containsId(id)) {
-            throw new UserNotFoundException(String.format("Пользователь с id=%d не найден.", id));
-        }
-        String sqlQuery = "SELECT * FROM  EVENTS AS e WHERE e.user_id = ?";
-        return jdbcTemplate.query(sqlQuery, UserDbStorage::mapRowToEvent, id);
-    }
-
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getInt("user_id"))
@@ -87,19 +77,6 @@ public class UserDbStorage implements UserStorage {
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
-                .build();
-    }
-
-    private static Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
-        String timestamp = new SimpleDateFormat("MMddyyyyHHmmss")
-                .format(resultSet.getTimestamp("timestamp"));
-        return Event.builder()
-                .eventId(resultSet.getInt("event_id"))
-                .userId(resultSet.getInt("user_id"))
-                .entityId(resultSet.getInt("entity_id"))
-                .eventType((EventType.valueOf(resultSet.getString("event_type"))))
-                .operation((Operation.valueOf((resultSet.getString("operation")))))
-                .timestamp(Long.parseLong(timestamp))
                 .build();
     }
 }
