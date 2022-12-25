@@ -16,7 +16,7 @@ public interface ReviewsStorage {
 
     Reviews updateReviews(Reviews reviews);
 
-    void updateReviewsIsPositive(Integer reviewId, Boolean isPositive, Integer userId);
+    void updateReviewsIsPositive(Integer reviewId, Integer isPositive, Integer userId);
 
     void deleteReviews(Integer reviewId);
 
@@ -24,11 +24,7 @@ public interface ReviewsStorage {
 
     boolean checkReview(Integer reviewId);
 
-    boolean checkLikeOrDislike(Integer reviewId, Integer userId, boolean check);
+    boolean checkLikeOrDislike(Integer reviewId, Integer userId, Integer check);
 
-    void updateUseful(Reviews review);
-
-    void deleteLike(Integer reviewId, Integer userId);
-
-    void deleteDislike(Integer reviewId, Integer userId);
+    void deleteLikeOrDislike(Integer reviewId, Integer userId);
 }

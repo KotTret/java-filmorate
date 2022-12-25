@@ -14,8 +14,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.FilmDbStorage;
 
-
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -26,16 +24,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class DirectorDbStorage implements DirectorStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
     private final NamedParameterJdbcTemplate nameJdbcTemplate;
-    static Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
-        return Director.builder()
-                .id(resultSet.getInt("director_id"))
-                .name(resultSet.getString("director_name"))
-                .build();
-    }
 
     @Override
     public void add(Director director) {
@@ -120,6 +110,13 @@ public class DirectorDbStorage implements DirectorStorage {
         nameJdbcTemplate.query(sql, parameters,
                 (rs, rowNum) -> resFilms.get(rs.getInt("film_id")).getDirectors().add(mapRowToDirector(rs, rowNum)));
 
+    }
+
+    static Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
+        return Director.builder()
+                .id(resultSet.getInt("director_id"))
+                .name(resultSet.getString("director_name"))
+                .build();
     }
 
 }

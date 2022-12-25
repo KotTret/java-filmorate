@@ -55,40 +55,24 @@ public class ReviewsService {
         return reviewsStorage.updateReviews(reviews);
     }
 
-    public void updateReviewsIsPositive(Integer reviewId, String isPositive, Integer userId) {
+    public void updateReviewsIsPositive(Integer reviewId, String isPositive, Integer userId, Integer like) {
         checkUser(userId);
         checkReview(reviewId);
-        Reviews reviews = getReviewById(reviewId);
-        if (isPositive.equals("like")) {
-            checkLikeOrDislike(reviewId, userId, true);
-            reviews.setUseful(reviews.getUseful() + 1);
-            reviewsStorage.updateUseful(reviews);
-            reviewsStorage.updateReviewsIsPositive(reviewId, true, userId);
-        } else if (isPositive.equals("dislike")) {
-            checkLikeOrDislike(reviewId, userId, false);
-            reviews.setUseful(reviews.getUseful() - 1);
-            reviewsStorage.updateUseful(reviews);
-            reviewsStorage.updateReviewsIsPositive(reviewId, false, userId);
+        if (isPositive.equals("like") || isPositive.equals("dislike")) {
+            checkLikeOrDislike(reviewId, userId, like);
+            reviewsStorage.updateReviewsIsPositive(reviewId, like, userId);
         } else {
             throw new RuntimeException("Введены неизвестные данные");
         }
         log.info("Отзыв: id:{} обновлен", reviewId);
     }
 
-    public void deleteIsPositive(Integer reviewId, String isPositive, Integer userId) {
+    public void deleteIsPositive(Integer reviewId, String isPositive, Integer userId, Integer like) {
         checkUser(userId);
         checkReview(reviewId);
-        Reviews reviews = getReviewById(reviewId);
-        if (isPositive.equals("like")) {
-            checkLikeOrDislike(reviewId, userId, true);
-            reviews.setUseful(reviews.getUseful() - 1);
-            reviewsStorage.updateUseful(reviews);
-            reviewsStorage.deleteLike(reviewId, userId);
-        } else if (isPositive.equals("dislike")) {
-            checkLikeOrDislike(reviewId, userId, false);
-            reviews.setUseful(reviews.getUseful() + 1);
-            reviewsStorage.updateUseful(reviews);
-            reviewsStorage.deleteDislike(reviewId, userId);
+        if (isPositive.equals("like") || isPositive.equals("dislike")) {
+            checkLikeOrDislike(reviewId, userId, like);
+            reviewsStorage.deleteLikeOrDislike(reviewId, userId);
         } else {
             throw new RuntimeException("Введены неизвестные данные");
         }
@@ -107,7 +91,7 @@ public class ReviewsService {
         }
     }
 
-    private void checkLikeOrDislike(Integer reviewId, Integer userId, boolean check) {
+    private void checkLikeOrDislike(Integer reviewId, Integer userId, Integer check) {
         if (reviewsStorage.checkLikeOrDislike(reviewId, userId, check)) {
             throw new ObjectExistsException("Отзыв уже находится с данной оценкой");
         }

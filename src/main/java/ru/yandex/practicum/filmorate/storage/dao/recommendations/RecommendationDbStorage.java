@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 import ru.yandex.practicum.filmorate.storage.dao.film.FilmDbStorage;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,21 +43,31 @@ public class RecommendationDbStorage implements RecommendationStorage {
                 "FROM films, mpa " +
                 "WHERE films.mpa_id = mpa.mpa_id " +
                 "AND films.film_id IN (" + id + ")";
-        Set<Film> setFilm = new HashSet<>(jdbcTemplate.query(filmList, FilmDbStorage::mapRowToFilm));
-        List<Film> filmsList = new ArrayList<>();
-        filmsList.addAll(setFilm);
-        for(Film film: filmsList) {
-            jdbcTemplate.query("SELECT genres.genre_id, genres.genre_name " +
-                    "FROM films, genres, film_genres " +
-                    "WHERE films.film_id = film_genres.film_id " +
-                    "AND film_genres.genre_id = genres.genre_id " +
-                    "AND films.film_id = ?", (ResultSet rs) -> {
-                film.getGenres().add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
-                while (rs.next()) {
-                    film.getGenres().add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
-                }
-            }, film.getId());
-        }
-        return filmsList;
+        final String genre = "SELECT genres.genre_id, genres.genre_name, film_genres.film_id " +
+                "FROM films, genres, film_genres " +
+                "WHERE films.film_id = film_genres.film_id " +
+                "AND film_genres.genre_id = genres.genre_id " +
+                "AND films.film_id = ? ";
+        Set<Film> setFilm = new HashSet<>();
+        jdbcTemplate.query(filmList, (ResultSet rs) -> {
+            Film film = FilmDbStorage.mapRowToFilm(rs, rs.getRow());
+            List<Genre> genres = (jdbcTemplate.query(genre, RecommendationDbStorage::mapRowToGenre, rs.getInt("film_id")));
+            film.getGenres().addAll(genres);
+            setFilm.add(film);
+            while (rs.next()) {
+                film = FilmDbStorage.mapRowToFilm(rs, rs.getRow());
+                genres = (jdbcTemplate.query(genre, RecommendationDbStorage::mapRowToGenre, rs.getInt("film_id")));
+                film.getGenres().addAll(genres);
+                setFilm.add(film);
+            }
+        });
+        return new ArrayList<>(setFilm);
+    }
+
+    public static Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
+        return Genre.builder()
+                .id(resultSet.getInt("genre_id"))
+                .name(resultSet.getString("genre_name"))
+                .build();
     }
 }
