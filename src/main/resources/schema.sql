@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS film_reviews
     is_positive BOOLEAN,
     user_id INTEGER NOT NULL,
     film_id INTEGER NOT NULL,
-    useful INTEGER,
+    useful INT,
     FOREIGN KEY (user_id)
     REFERENCES users (user_id) ON DELETE CASCADE,
     FOREIGN KEY (film_id)
@@ -108,9 +108,7 @@ CREATE TABLE IF NOT EXISTS reviews_is_positive
 (
     review_id INTEGER,
     user_id INTEGER,
-    is_positive BOOLEAN,
-    CONSTRAINT reviews_is_positive_pk
-    PRIMARY KEY (review_id, user_id),
+    is_positive INT,
     FOREIGN KEY (review_id)
     REFERENCES film_reviews (review_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id)

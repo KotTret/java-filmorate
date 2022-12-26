@@ -35,14 +35,8 @@ public class ReviewsDbStorage implements ReviewsStorage {
 
     @Override
     public List<Reviews> findAllReviews() {
-        List<Reviews> result = new ArrayList<>();
-        String findReviewOne = "SELECT * FROM film_reviews WHERE useful > 0 ORDER BY useful DESC";
-        result.addAll(jdbcTemplate.query(findReviewOne, this::mapRowToReviews));
-        String findReviewTwo = "SELECT * FROM film_reviews WHERE useful = 0 OR useful IS NULL ORDER BY review_id";
-        result.addAll(jdbcTemplate.query(findReviewTwo, this::mapRowToReviews));
-        String findReviewThree = "SELECT * FROM film_reviews WHERE useful < 0 ORDER BY useful";
-        result.addAll(jdbcTemplate.query(findReviewThree, this::mapRowToReviews));
-        return result;
+        String findAllReviews = "SELECT * FROM film_reviews ORDER BY useful DESC";
+        return new ArrayList<>(jdbcTemplate.query(findAllReviews, this::mapRowToReviews));
     }
 
     @Override
@@ -68,17 +62,10 @@ public class ReviewsDbStorage implements ReviewsStorage {
     }
 
     @Override
-    public void updateUseful(Reviews review) {
-        final String updateUseful = "UPDATE film_reviews SET " +
-                "useful = ? " +
-                "WHERE review_id = ?";
-        jdbcTemplate.update(updateUseful, review.getUseful(), review.getReviewId());
-    }
-
-    @Override
-    public void updateReviewsIsPositive(Integer reviewId, Boolean isPositive, Integer userId) {
-        String updateReviewsIsPositive = "INSERT INTO reviews_is_positive (is_positive, review_id, user_id) VALUES (?, ?, ?)";
-        jdbcTemplate.update(updateReviewsIsPositive, isPositive, reviewId, userId);
+    public void updateReviewsIsPositive(Integer reviewId, Integer isPositive, Integer userId) {
+        String updateReviewsIsPositive = "INSERT INTO reviews_is_positive (review_id, user_id, is_positive) VALUES (?, ?, ?)";
+        jdbcTemplate.update(updateReviewsIsPositive, reviewId, userId, isPositive);
+        useful(reviewId);
     }
 
     @Override
@@ -88,15 +75,17 @@ public class ReviewsDbStorage implements ReviewsStorage {
     }
 
     @Override
-    public void deleteLike(Integer reviewId, Integer userId) {
-        final String deleteLike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
-        jdbcTemplate.update(deleteLike, reviewId, userId, true);
+    public void deleteLikeOrDislike(Integer reviewId, Integer userId) {
+        useful(reviewId);
+        final String deleteLike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ?";
+        jdbcTemplate.update(deleteLike, reviewId, userId);
     }
 
-    @Override
-    public void deleteDislike(Integer reviewId, Integer userId) {
-        final String deleteDislike = "DELETE FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
-        jdbcTemplate.update(deleteDislike, reviewId, userId, false);
+    private void useful(Integer id) {
+        String updateUseful;
+        updateUseful = "update film_reviews r set useful = (select sum(l.is_positive) " +
+                "from reviews_is_positive l where l.review_id = r.review_id)  where review_id = ?";
+        jdbcTemplate.update(updateUseful, id);
     }
 
     @Override
@@ -121,7 +110,7 @@ public class ReviewsDbStorage implements ReviewsStorage {
     }
 
     @Override
-    public boolean checkLikeOrDislike(Integer reviewId, Integer userId, boolean check) {
+    public boolean checkLikeOrDislike(Integer reviewId, Integer userId, Integer check) {
         final String checkPositive = "SELECT CASE WHEN COUNT(1) > 0 THEN TRUE ELSE FALSE END AS result " +
                 "FROM reviews_is_positive WHERE review_id = ? AND user_id = ? AND is_positive = ?";
         String result = jdbcTemplate.query(checkPositive,

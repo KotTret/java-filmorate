@@ -15,7 +15,9 @@ import java.util.Objects;
 public class Director {
 
     Integer id;
-    @NotBlank
+
+    @NotBlank(groups = Create.class)
+    @NotBlank(groups = Update.class)
     String name;
 
     public Map<String, Object> toMap() {

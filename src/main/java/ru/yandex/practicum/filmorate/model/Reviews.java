@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,16 +12,19 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class Reviews {
+    @NotNull(groups = Update.class)
     private Integer reviewId;
-    @NotBlank(message = "Отзыв не может быть пустым.")
+    @NotNull(groups = Create.class)
+    @NotNull(groups = Update.class)
     private String content;
-    @NotNull
+    @NotNull(groups = Create.class)
+    @NotNull(groups = Update.class)
     private Boolean isPositive;
-    @NotNull(message = "id пользователя не может быть пустым.")
+    @NotNull(groups = Create.class)
     private Integer userId;
-    @NotNull(message = "id фильма не может быть пустым.")
+    @NotNull(groups = Create.class)
     private Integer filmId;
-    private Integer useful;
+    private int useful;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
