@@ -8,6 +8,9 @@ import ru.yandex.practicum.filmorate.exception.ObjectExistsException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Reviews;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -21,6 +24,7 @@ public class ReviewsService {
     private final ReviewsStorage reviewsStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     public Reviews getReviewById(Integer reviewId) {
         checkReview(reviewId);
@@ -46,13 +50,17 @@ public class ReviewsService {
             throw new ObjectExistsException("Отзыв уже существует, проверьте верно ли указан Id");
         }
         log.info("Пользователь: c id:{} оставил отзыв на фильм: id:{}", reviews.getUserId(), reviews.getFilmId());
-        return reviewsStorage.addReviews(reviews);
+        Reviews review = reviewsStorage.addReviews(reviews);
+        feedStorage.newFeed(review.getReviewId(), reviews.getUserId(), EventType.REVIEW, Operation.ADD);
+        return review;
     }
 
     public Reviews updateReviews(Reviews reviews) {
         checkReview(reviews.getReviewId());
         log.info("Пользователь: c id:{} обновил отзыв на фильм: id:{}", reviews.getUserId(), reviews.getFilmId());
-        return reviewsStorage.updateReviews(reviews);
+        Reviews updatedReview =  reviewsStorage.updateReviews(reviews);
+        feedStorage.newFeed(updatedReview.getReviewId(), updatedReview.getUserId(), EventType.REVIEW, Operation.UPDATE);
+        return updatedReview;
     }
 
     public void updateReviewsIsPositive(Integer reviewId, String isPositive, Integer userId) {
@@ -97,6 +105,7 @@ public class ReviewsService {
 
     public void deleteReviews(Integer reviewId) {
         checkReview(reviewId);
+        feedStorage.newFeed(reviewId, reviewsStorage.getReviewsById(reviewId).getReviewId(), EventType.REVIEW, Operation.REMOVE);
         reviewsStorage.deleteReviews(reviewId);
         log.info("Отзыв: id:{} удален", reviewId);
     }
@@ -131,5 +140,4 @@ public class ReviewsService {
             throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
         }
     }
-
 }

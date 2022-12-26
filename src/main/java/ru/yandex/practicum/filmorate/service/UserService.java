@@ -7,6 +7,9 @@ import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.event.Event;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.model.event.Operation;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
@@ -22,6 +25,7 @@ public class UserService {
     private final UserStorage userStorage;
     private final UserValidator userValidator;
     private final FriendsStorage friendsStorage;
+    private final FeedStorage feedStorage;
 
     public List<User> findAll() {
         List<User> users = userStorage.findAll();
@@ -33,7 +37,6 @@ public class UserService {
         User user = userStorage.get(userId);
         log.info("Запрошена информация о пользователе: {}", user.getEmail());
         return user;
-
     }
 
     public User create(User user)  {
@@ -60,12 +63,15 @@ public class UserService {
         }
         checkUser(id, friendId);
         friendsStorage.addToFriends(id, friendId);
+        feedStorage.newFeed(friendId, id, EventType.FRIEND, Operation.ADD);
         log.info("Пользователи: c id:{} добавил в друзья id:{}", id, friendId);
     }
 
     public void deleteFromFriends(Integer id, Integer friendId) {
         checkUser(id, friendId);
+
         friendsStorage.deleteFromFriends(id, friendId);
+        feedStorage.newFeed(friendId, id, EventType.FRIEND, Operation.REMOVE);
         log.info("Пользователь: с id:{} удалил из друзей пользователя id:{}", id, friendId);
     }
 
@@ -96,6 +102,9 @@ public class UserService {
     }
 
     public List<Event> getFeed(Integer id) {
-        return userStorage.getFeed(id);
+        if(!userStorage.containsId(id)) {
+            throw new UserNotFoundException(String.format("Пользователь с id=%d не найден.", id));
+        }
+        return feedStorage.getFeed(id);
     }
 }
