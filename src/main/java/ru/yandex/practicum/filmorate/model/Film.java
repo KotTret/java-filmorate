@@ -16,7 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 public class Film {
-
+    @NotNull(groups = Update.class)
     private Integer id;
     @NotBlank(message = "Название фильма не может быть пустым.")
     private String name;

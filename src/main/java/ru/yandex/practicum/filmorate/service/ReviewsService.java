@@ -26,49 +26,49 @@ public class ReviewsService {
     private final UserStorage userStorage;
     private final FeedStorage feedStorage;
 
-    public Reviews getReviewById(Integer reviewId) {
+    public Reviews getById(Integer reviewId) {
         checkReview(reviewId);
         log.info("Запрошен отзыв: id:{}", reviewId);
-        return reviewsStorage.getReviewsById(reviewId);
+        return reviewsStorage.getById(reviewId);
     }
 
-    public List<Reviews> getReviewByFilmId(Integer filmId, Integer count) {
+    public List<Reviews> getByFilmId(Integer filmId, Integer count) {
         checkFilm(filmId);
         log.info("Запрошены отзывы на фильм: id:{}", filmId);
-        return reviewsStorage.getReviewByFilmId(filmId, count);
+        return reviewsStorage.getByFilmId(filmId, count);
     }
 
-    public List<Reviews> findAllReviews() {
-        List<Reviews> reviews = reviewsStorage.findAllReviews();
+    public List<Reviews> findAll() {
+        List<Reviews> reviews = reviewsStorage.findAll();
         log.info("Текущее количество отзывов: {}", reviews.size());
         return reviews;
     }
 
-    public Reviews addReviews(Reviews reviews) {
+    public Reviews add(Reviews reviews) {
         checkUserAndFilm(reviews.getUserId(), reviews.getFilmId());
         if (reviewsStorage.checkReview(reviews)) {
             throw new ObjectExistsException("Отзыв уже существует, проверьте верно ли указан Id");
         }
         log.info("Пользователь: c id:{} оставил отзыв на фильм: id:{}", reviews.getUserId(), reviews.getFilmId());
-        Reviews review = reviewsStorage.addReviews(reviews);
-        feedStorage.newFeed(review.getReviewId(), reviews.getUserId(), EventType.REVIEW, Operation.ADD);
+        Reviews review = reviewsStorage.add(reviews);
+        feedStorage.add(review.getReviewId(), reviews.getUserId(), EventType.REVIEW, Operation.ADD);
         return review;
     }
 
-    public Reviews updateReviews(Reviews reviews) {
+    public Reviews update(Reviews reviews) {
         checkReview(reviews.getReviewId());
         log.info("Пользователь: c id:{} обновил отзыв на фильм: id:{}", reviews.getUserId(), reviews.getFilmId());
-        Reviews updatedReview =  reviewsStorage.updateReviews(reviews);
-        feedStorage.newFeed(updatedReview.getReviewId(), updatedReview.getUserId(), EventType.REVIEW, Operation.UPDATE);
+        Reviews updatedReview =  reviewsStorage.update(reviews);
+        feedStorage.add(updatedReview.getReviewId(), updatedReview.getUserId(), EventType.REVIEW, Operation.UPDATE);
         return updatedReview;
     }
 
-    public void updateReviewsIsPositive(Integer reviewId, String isPositive, Integer userId, Integer like) {
+    public void updateIsPositive(Integer reviewId, String isPositive, Integer userId, Integer like) {
         checkUser(userId);
         checkReview(reviewId);
         if (isPositive.equals("like") || isPositive.equals("dislike")) {
             checkLikeOrDislike(reviewId, userId, like);
-            reviewsStorage.updateReviewsIsPositive(reviewId, like, userId);
+            reviewsStorage.updateIsPositive(reviewId, like, userId);
         } else {
             throw new RuntimeException("Введены неизвестные данные");
         }
@@ -87,10 +87,10 @@ public class ReviewsService {
         log.info("Отзыв: id:{} обновлен", reviewId);
     }
 
-    public void deleteReviews(Integer reviewId) {
+    public void delete(Integer reviewId) {
         checkReview(reviewId);
-        feedStorage.newFeed(reviewId, reviewsStorage.getReviewsById(reviewId).getReviewId(), EventType.REVIEW, Operation.REMOVE);
-        reviewsStorage.deleteReviews(reviewId);
+        feedStorage.add(reviewId, reviewsStorage.getById(reviewId).getReviewId(), EventType.REVIEW, Operation.REMOVE);
+        reviewsStorage.delete(reviewId);
         log.info("Отзыв: id:{} удален", reviewId);
     }
 

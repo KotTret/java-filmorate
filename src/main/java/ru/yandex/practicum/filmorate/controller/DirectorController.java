@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Validated
 @RequestMapping("/directors")
 public class DirectorController {
 
@@ -25,7 +24,7 @@ public class DirectorController {
     }
 
     @GetMapping(value = "/{id}")
-    public Director read(@Valid @PathVariable Integer id) {
+    public Director read(@PathVariable Integer id) {
         return directorService.getById(id);
     }
 
@@ -40,7 +39,7 @@ public class DirectorController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public void delete(@Valid @PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) {
          directorService.delete(id);
     }
 }

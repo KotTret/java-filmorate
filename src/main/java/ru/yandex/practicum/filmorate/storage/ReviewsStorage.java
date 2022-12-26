@@ -6,19 +6,19 @@ import java.util.List;
 
 public interface ReviewsStorage {
 
-    Reviews getReviewsById(Integer id);
+    Reviews getById(Integer id);
 
-    List<Reviews> getReviewByFilmId(Integer filmId, Integer count);
+    List<Reviews> getByFilmId(Integer filmId, Integer count);
 
-    List<Reviews> findAllReviews();
+    List<Reviews> findAll();
 
-    Reviews addReviews(Reviews reviews);
+    Reviews add(Reviews reviews);
 
-    Reviews updateReviews(Reviews reviews);
+    Reviews update(Reviews reviews);
 
-    void updateReviewsIsPositive(Integer reviewId, Integer isPositive, Integer userId);
+    void updateIsPositive(Integer reviewId, Integer isPositive, Integer userId);
 
-    void deleteReviews(Integer reviewId);
+    void delete(Integer reviewId);
 
     boolean checkReview(Reviews reviews);
 

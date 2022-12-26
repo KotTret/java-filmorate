@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface FeedStorage {
 
-    void newFeed(Integer id, Integer userId, EventType type, Operation operation);
-    List<Event> getFeed(Integer id);
+    void add(Integer id, Integer userId, EventType type, Operation operation);
+    List<Event> get(Integer id);
 }

@@ -22,13 +22,13 @@ import java.util.List;
 public class FeedDAO implements FeedStorage {
     private final JdbcTemplate jdbcTemplate;
     @Override
-    public void newFeed(Integer id, Integer userId, EventType type, Operation operation) {
+    public void add(Integer id, Integer userId, EventType type, Operation operation) {
         String sqlQuery = "insert into EVENTS (TIMESTAMP, USER_ID,EVENT_TYPE, OPERATION, ENTITY_ID) values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, Timestamp.from(Instant.now()), userId, type.name(), operation.name(), id);
     }
 
     @Override
-    public List<Event> getFeed(Integer id) {
+    public List<Event> get(Integer id) {
         String sqlQuery = "SELECT * FROM  EVENTS AS e WHERE e.user_id = ?";
         return jdbcTemplate.query(sqlQuery, FeedDAO::mapRowToEvent, id);
     }
