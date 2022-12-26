@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,11 +15,12 @@ import java.util.Objects;
 @Builder
 public class Director {
 
-    Integer id;
+    @NotNull(groups = Update.class)
+    private Integer id;
 
     @NotBlank(groups = Create.class)
     @NotBlank(groups = Update.class)
-    String name;
+    private String name;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

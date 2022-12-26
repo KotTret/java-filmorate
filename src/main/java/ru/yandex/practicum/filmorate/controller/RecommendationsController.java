@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Validated
 public class RecommendationsController {
     private final RecommendationService recommendationService;
 

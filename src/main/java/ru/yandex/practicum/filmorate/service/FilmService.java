@@ -43,9 +43,6 @@ public class FilmService {
     }
 
     public Film put(Film film) {
-        if (film.getId() == null) {
-            throw new FilmNotFoundException("Идентификатор фильма отсутствует, невозможно обновить фильм. Фильм не найден");
-        }
         filmStorage.update(film);
         setMpaAndGenres(film);
         setDirectors(film);
@@ -64,13 +61,13 @@ public class FilmService {
     public void putLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
         likesStorage.putLike(id, userId);
-        feedStorage.newFeed(id, userId, EventType.LIKE, Operation.ADD);
+        feedStorage.add(id, userId, EventType.LIKE, Operation.ADD);
         log.info("Пользователю: c id:{} понравился фильм: id:{}", userId, id);
     }
 
     public void deleteLike(Integer id, Integer userId) {
         checkUserAndFilm(userId, id);
-        feedStorage.newFeed(id, userId, EventType.LIKE, Operation.REMOVE);
+        feedStorage.add(id, userId, EventType.LIKE, Operation.REMOVE);
         likesStorage.deleteLike(id, userId);
         log.info("Пользователю: c id:{} удалил лайк у  фильмв: id:{}", userId, id);
     }
@@ -110,21 +107,6 @@ public class FilmService {
         return films;
     }
 
-    private void setMpaAndGenres(Film film) {
-        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
-        genreStorage.findGenresForFilm(film);
-    }
-
-    private void setDirectors(Film film) {
-        directorStorage.findDirectorsForFilm(film);
-    }
-
-    private void checkFilm(Integer id) {
-        if (!filmStorage.containsId(id)) {
-            throw new FilmNotFoundException("Фильм не найден, проверьте верно ли указан Id");
-        }
-    }
-
     public void checkUserAndFilm(Integer idUser, Integer idFilm) {
         if (!userStorage.containsId(idUser)) {
             throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
@@ -148,5 +130,20 @@ public class FilmService {
         genreStorage.findGenresForFilm(films);
         directorStorage.findDirectorsForFilm(films);
         return films;
+    }
+
+    private void setMpaAndGenres(Film film) {
+        film.setMpa(mpaStorage.findById(film.getMpa().getId()));
+        genreStorage.findGenresForFilm(film);
+    }
+
+    private void setDirectors(Film film) {
+        directorStorage.findDirectorsForFilm(film);
+    }
+
+    private void checkFilm(Integer id) {
+        if (!filmStorage.containsId(id)) {
+            throw new FilmNotFoundException("Фильм не найден, проверьте верно ли указан Id");
+        }
     }
 }

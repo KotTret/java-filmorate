@@ -48,10 +48,7 @@ public class UserService {
 
     public User update(User user) {
         userValidator.validate(user);
-        if (user.getId() == null) {
-            throw  new UserNotFoundException("Идентификатор пользователя отсутствует, невозможно обновить данные. " +
-                    "Пользователь не найден");
-        }
+
         userStorage.update(user);
         log.info("Информация о пользователе обнолвена: {}", user.getEmail());
         return user;
@@ -63,7 +60,7 @@ public class UserService {
         }
         checkUser(id, friendId);
         friendsStorage.addToFriends(id, friendId);
-        feedStorage.newFeed(friendId, id, EventType.FRIEND, Operation.ADD);
+        feedStorage.add(friendId, id, EventType.FRIEND, Operation.ADD);
         log.info("Пользователи: c id:{} добавил в друзья id:{}", id, friendId);
     }
 
@@ -71,7 +68,7 @@ public class UserService {
         checkUser(id, friendId);
 
         friendsStorage.deleteFromFriends(id, friendId);
-        feedStorage.newFeed(friendId, id, EventType.FRIEND, Operation.REMOVE);
+        feedStorage.add(friendId, id, EventType.FRIEND, Operation.REMOVE);
         log.info("Пользователь: с id:{} удалил из друзей пользователя id:{}", id, friendId);
     }
 
@@ -84,17 +81,6 @@ public class UserService {
         checkUser(id, otherId);
         return friendsStorage.getCommonFriends(id, otherId);
     }
-    private void checkUser(Integer id) {
-        if (!userStorage.containsId(id)) {
-            throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
-        }
-    }
-
-    private void checkUser(Integer id1, Integer id2) {
-        if (!userStorage.containsId(id1) || !userStorage.containsId(id2)) {
-            throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
-        }
-    }
 
     public void delete(Integer id) {
         checkUser(id);
@@ -105,6 +91,18 @@ public class UserService {
         if(!userStorage.containsId(id)) {
             throw new UserNotFoundException(String.format("Пользователь с id=%d не найден.", id));
         }
-        return feedStorage.getFeed(id);
+        return feedStorage.get(id);
+    }
+
+    private void checkUser(Integer id) {
+        if (!userStorage.containsId(id)) {
+            throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
+        }
+    }
+
+    private void checkUser(Integer id1, Integer id2) {
+        if (!userStorage.containsId(id1) || !userStorage.containsId(id2)) {
+            throw new UserNotFoundException("Пользователь не найден, проверьте верно ли указан Id");
+        }
     }
 }

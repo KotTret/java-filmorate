@@ -5,14 +5,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Reviews;
-import ru.yandex.practicum.filmorate.model.event.EventType;
-import ru.yandex.practicum.filmorate.model.event.Operation;
 import ru.yandex.practicum.filmorate.storage.ReviewsStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,25 +18,25 @@ public class ReviewsDbStorage implements ReviewsStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Reviews getReviewsById(Integer reviewId) {
+    public Reviews getById(Integer reviewId) {
         String findReviewById = "SELECT * FROM film_reviews WHERE review_id = ?";
         return jdbcTemplate.queryForObject(findReviewById, this::mapRowToReviews, reviewId);
     }
 
     @Override
-    public List<Reviews> getReviewByFilmId(Integer filmId, Integer count) {
+    public List<Reviews> getByFilmId(Integer filmId, Integer count) {
         String findReviewById = "SELECT * FROM film_reviews WHERE film_id = ? ORDER BY useful DESC limit ?";
         return jdbcTemplate.query(findReviewById, this::mapRowToReviews, filmId, count);
     }
 
     @Override
-    public List<Reviews> findAllReviews() {
+    public List<Reviews> findAll() {
         String findAllReviews = "SELECT * FROM film_reviews ORDER BY useful DESC";
         return new ArrayList<>(jdbcTemplate.query(findAllReviews, this::mapRowToReviews));
     }
 
     @Override
-    public Reviews addReviews(Reviews reviews) {
+    public Reviews add(Reviews reviews) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film_reviews")
                 .usingGeneratedKeyColumns("review_id");
@@ -50,7 +46,7 @@ public class ReviewsDbStorage implements ReviewsStorage {
     }
 
     @Override
-    public Reviews updateReviews(Reviews reviews) {
+    public Reviews update(Reviews reviews) {
         String updateReviews = "UPDATE film_reviews SET content = ?, " +
                 "is_positive = ? " +
                 "WHERE review_id = ?";
@@ -58,18 +54,18 @@ public class ReviewsDbStorage implements ReviewsStorage {
                 reviews.getContent(),
                 reviews.getIsPositive(),
                 reviews.getReviewId());
-        return getReviewsById(reviews.getReviewId());
+        return getById(reviews.getReviewId());
     }
 
     @Override
-    public void updateReviewsIsPositive(Integer reviewId, Integer isPositive, Integer userId) {
+    public void updateIsPositive(Integer reviewId, Integer isPositive, Integer userId) {
         String updateReviewsIsPositive = "INSERT INTO reviews_is_positive (review_id, user_id, is_positive) VALUES (?, ?, ?)";
         jdbcTemplate.update(updateReviewsIsPositive, reviewId, userId, isPositive);
         useful(reviewId);
     }
 
     @Override
-    public void deleteReviews(Integer reviewId) {
+    public void delete(Integer reviewId) {
         String sqlQuery = "delete from film_reviews where review_id = ?";
         jdbcTemplate.update(sqlQuery, reviewId);
     }
