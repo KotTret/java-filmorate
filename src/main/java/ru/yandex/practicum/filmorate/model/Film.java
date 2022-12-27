@@ -16,7 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 public class Film {
-
+    @NotNull(groups = Update.class)
     private Integer id;
     @NotBlank(message = "Название фильма не может быть пустым.")
     private String name;
@@ -34,6 +34,8 @@ public class Film {
 
     private List<Genre> genres = new ArrayList<>();
     private int rate = 0;
+
+    private List<Director> directors =  new ArrayList<>();
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

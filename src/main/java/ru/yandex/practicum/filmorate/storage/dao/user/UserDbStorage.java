@@ -7,17 +7,16 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
 
 @Component
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public void add(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -25,20 +24,20 @@ public class UserDbStorage implements UserStorage {
                 .usingGeneratedKeyColumns("user_id");
         Integer id = simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue();
         user.setId(id);
-
     }
 
     @Override
     public void update(User user) {
         String sqlQuery = "update USERS set EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE USER_ID = ?";
-       if (jdbcTemplate.update(sqlQuery,
+
+        if (jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
                 user.getId()) < 1) {
-           throw  new UserNotFoundException("Такого пользователя ещё нет, невозможно обновить!");
-       }
+            throw new UserNotFoundException("Такого пользователя ещё нет, невозможно обновить!");
+        }
     }
 
     @Override
@@ -67,9 +66,6 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT USER_ID FROM USERS where USER_ID = ?";
         return !jdbcTemplate.queryForList(sqlQuery, Integer.class, id).isEmpty();
     }
-
-
-
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getInt("user_id"))
@@ -79,5 +75,4 @@ public class UserDbStorage implements UserStorage {
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
     }
-
 }

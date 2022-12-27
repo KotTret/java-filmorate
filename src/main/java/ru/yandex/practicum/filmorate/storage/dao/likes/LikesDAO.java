@@ -9,14 +9,12 @@ import ru.yandex.practicum.filmorate.storage.LikesStorage;
 @Component
 @RequiredArgsConstructor
 public class LikesDAO  implements LikesStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void putLike(Integer id, Integer userId) {
         String sqlQuery = "insert into film_likes(FILM_ID, USER_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, userId);
-
         setRate(id);
     }
     @Override
@@ -25,8 +23,7 @@ public class LikesDAO  implements LikesStorage {
         if (jdbcTemplate.update(sqlQuery, id, userId) < 1) {
             throw new ObjectNotFoundException(String.format("Пользователь с id=%d не ставил лайк фильму с id=%d.", userId, id));
         }
-
-       setRate(id);
+        setRate(id);
     }
 
     private void setRate(Integer filmId) {
@@ -34,5 +31,4 @@ public class LikesDAO  implements LikesStorage {
                 "from FILM_LIKES l where l.film_id = f.film_id) where film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
-
 }

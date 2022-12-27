@@ -17,4 +17,5 @@ public interface UserStorage {
     User get(Integer id);
 
     boolean containsId(Integer id);
+
 }

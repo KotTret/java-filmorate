@@ -6,20 +6,16 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserDbStorage;
-
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class FriendsDAO implements FriendsStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
     @Override
     public void addToFriends(Integer id, Integer friendId) {
         String sqlQuery = "insert into USER_FRIENDS(USER_ID, FRIEND_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
-
     }
     @Override
     public void deleteFromFriends(Integer id, Integer friendId) {

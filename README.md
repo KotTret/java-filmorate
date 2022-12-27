@@ -12,8 +12,10 @@
 * **PUT** /users - редактирование пользователя
 * **PUT** /users/{id}/friends/{friendId} — добавление в друзья
 * **DELETE** /users/{id}/friends/{friendId} — удаление из друзей
+* **DELETE** /users/{userId} — удаление пользователя
 * **GET** /users/{id}/friends — возвращает список пользователей, являющихся его друзьями
 * **GET** /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем
+* **GET** /users/{id}/feed — возвращает ленту событий пользователя.
 </details>
 
 <details>
@@ -25,7 +27,11 @@
 * **PUT** /films - редактирование фильма
 * **PUT** /films/{id}/like/{userId} — пользователь ставит лайк фильму
 * **DELETE** /films/{id}/like/{userId} — пользователь удаляет лайк
+* **DELETE** /films/{filmId} — удаление фильма
 * **GET** /films/popular?count={count} — возвращает список из первых count фильмов по количеству лайков. Если значение параметра count не задано, возвращает первые 10
+* **GET** /films/common?userId={userId}&friendId={friendId} — Возвращает список фильмов, отсортированных по популярности.
+* **GET** /films/director/{directorId} — Возвращает список режиссёров
+* **GET** /films/search?query={query}&by={by} — Возвращает список фильмов, отсортированных по популярности. query — текст для поиска by — может принимать значения director (поиск по режиссёру), title (поиск по названию), либо оба значения через запятую при поиске одновременно и по режиссеру и по названию.
 
 </details>
 <details>
@@ -43,9 +49,39 @@
 
 </details>
 
+<details>
+  <summary><h3>Рекомендации</h3></summary>
+
+* **GET** /users/{id}/recommendations - Возвращает рекомендации по фильмам для просмотра.
+
+</details>
+
+
+<details>
+  <summary><h3>Отзывы</h3></summary>
+
+* **GET** /reviews - получение списка всех отзывов
+* **GET** /reviews/{reviewId} - получение отзыва по идентификатору.
+* **POST** /reviews - создание отзыва
+* **PUT** /reviews - редактирование отзыва
+* **PUT** /reviews/{reviewId}/{isPositive}/{userId} — пользователь ставит лайк отзыву
+* **DELETE** /reviews/{reviewId}/{isPositive}/{userId} —  пользователь удаляет лайк/дизлайк отзыву.
+* **DELETE** /reviews/{reviewId} — удаление отзыва
+</details>
+
+<details>
+  <summary><h3>Режиссёры</h3></summary>
+
+* **GET** /directors - получение списка всех режиссёров
+* **GET** /directors/{id} - получение режиссёра по идентификатору.
+* **POST** /directors - добавление режиссёра
+* **PUT** /directors - редактирование режиссёра
+* **DELETE** /directors/{id} — удаление режиссёра
+</details>
+
 ## Схема БД и примеры запросов
 
-![plot](./src/main/resources/db.png)
+![plot](./src/main/resources/DB.png)
 
 <details>
   <summary><h3>Для пользователей:</h3></summary>
@@ -182,6 +218,44 @@ ORDER BY mpa_id
 SELECT *
 FROM mpa
 WHERE mpa_id = ?
+```
+
+</details>
+
+<details>
+  <summary><h3>Для отзывов:</h3></summary>
+
+* создание отзыва
+```SQL
+insert into events (timestamp, user_id,event_type, operation, entity_id) 
+values (?, ?, ?, ?, ?)
+```
+* редактирование отзыва
+```SQL
+UPDATE film_reviews SET content = ?, is_positive = ? 
+WHERE review_id = ?
+```
+* получение списка всех отзывов
+```SQL
+SELECT * FROM films
+```
+* получение информации о фильме по его `id`
+```SQL
+SELECT * FROM films f  WHERE f.film_id = ?
+```
+* пользователь ставит лайк фильму
+```SQL
+INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)
+```
+* пользователь удаляет лайк
+```SQL
+DELETE
+FROM film_likes
+WHERE film_id = ? AND user_id = ?
+```
+* возвращает список из первых `count` фильмов по количеству лайков
+```SQL
+SELECT * FROM films ORDER BY number_of_likes DESC LIMIT ?
 ```
 
 </details>

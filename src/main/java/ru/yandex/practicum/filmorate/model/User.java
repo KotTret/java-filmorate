@@ -12,7 +12,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 public class User {
-
+    @NotNull(groups = Update.class)
     private Integer id;
     @NotNull
     @Email(message = "Формат электронной почты указан неверно.")
