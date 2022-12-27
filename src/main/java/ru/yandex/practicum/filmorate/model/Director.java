@@ -18,8 +18,7 @@ public class Director {
     @NotNull(groups = Update.class)
     private Integer id;
 
-    @NotBlank(groups = Create.class)
-    @NotBlank(groups = Update.class)
+    @NotBlank(groups = {Create.class, Update.class})
     private String name;
 
     public Map<String, Object> toMap() {

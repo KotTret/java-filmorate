@@ -25,7 +25,7 @@ public class GenreDAO implements GenreStorage {
 
     private final NamedParameterJdbcTemplate nameJdbcTemplate;
 
-    static Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
+    public static Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
         return Genre.builder()
                 .id(resultSet.getInt("genre_id"))
                 .name(resultSet.getString("genre_name"))

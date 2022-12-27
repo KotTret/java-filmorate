@@ -14,11 +14,8 @@ import java.util.Map;
 public class Reviews {
     @NotNull(groups = Update.class)
     private Integer reviewId;
-    @NotNull(groups = Create.class)
-    @NotNull(groups = Update.class)
     private String content;
-    @NotNull(groups = Create.class)
-    @NotNull(groups = Update.class)
+    @NotNull(groups = {Create.class, Update.class})
     private Boolean isPositive;
     @NotNull(groups = Create.class)
     private Integer userId;
