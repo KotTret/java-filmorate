@@ -118,5 +118,4 @@ public class DirectorDbStorage implements DirectorStorage {
                 .name(resultSet.getString("director_name"))
                 .build();
     }
-
 }

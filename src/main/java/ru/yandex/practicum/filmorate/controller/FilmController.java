@@ -52,7 +52,7 @@ public class FilmController {
     public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") Integer count,
                                       @RequestParam(required = false) Integer genreId,
                                       @RequestParam(required = false) @Min(1895) Integer year) {
-        return filmService.getPopularFilms(count, genreId, year);
+        return filmService.getPopular(count, genreId, year);
     }
 
     @GetMapping("/{filmId}")
@@ -67,12 +67,12 @@ public class FilmController {
 
     @GetMapping(value = "/director/{directorId}")
     public List<Film> getFilmsByDirector(@PathVariable Integer directorId, @RequestParam String sortBy){
-        return filmService.getFilmsByDirector(directorId,sortBy);
+        return filmService.getByDirector(directorId,sortBy);
     }
 
     @GetMapping("/search")
     public List<Film> searchFilms(@RequestParam("query") String query, @RequestParam("by") String [] searchBy) {
-        return filmService.searchFilms(query,searchBy);
+        return filmService.search(query,searchBy);
     }
 
 }

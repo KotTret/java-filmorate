@@ -17,10 +17,12 @@ public interface FilmStorage {
 
     boolean containsId(Integer id);
 
-    List<Film> getPopularFilms(Integer count, Integer genreId, Integer year);
+    List<Film> searchByDirectorAndTitle(String query);
+
+    List<Film> getPopular(Integer count, Integer genreId, Integer year);
 
     Film get(Integer id);
-    List<Film> getCommonFilms(Integer userId, Integer friendId);
-    List<Film> searchFilmsByTitle(String query);
-    List<Film> searchFilmsByDirector(String query);
+    List<Film> getCommon(Integer userId, Integer friendId);
+    List<Film> searchByTitle(String query);
+    List<Film> searchByDirector(String query);
 }

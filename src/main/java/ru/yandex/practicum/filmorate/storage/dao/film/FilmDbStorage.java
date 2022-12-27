@@ -83,25 +83,40 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchFilmsByTitle(String query) {
-        query = query.toLowerCase();
-        query = "%" + query.substring(0, 1).toUpperCase() + "%";
-        String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID WHERE f.NAME LIKE ? ";
+    public List<Film> searchByTitle(String query) {
+        query = "%" + query.toLowerCase() + "%";
+        // query = "%" + query.substring(0, 1).toUpperCase() + "%";
+        String sqlQuery = "SELECT * FROM FILMS as f join MPA M on f.MPA_ID = M.MPA_ID WHERE LCASE(f.NAME) LIKE ? ";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
     }
 
 
     @Override
-    public List<Film> searchFilmsByDirector(String query) {
+    public List<Film> searchByDirector(String query) {
         query = "%" + query.toLowerCase() + "%";
         String sqlQuery = "SELECT * FROM films f join MPA M on f.MPA_ID = M.MPA_ID  " +
                 "join FILM_DIRECTORS AS fd ON f.FILM_ID = fd.FILM_ID " +
-                "JOIN DIRECTORS AS d on fd.DIRECTOR_ID = d.DIRECTOR_ID  WHERE d.DIRECTOR_NAME LIKE ? ";
+                "JOIN DIRECTORS AS d on fd.DIRECTOR_ID = d.DIRECTOR_ID  WHERE LCASE(d.DIRECTOR_NAME) LIKE ? ";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query);
     }
 
     @Override
-    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+    public List<Film> searchByDirectorAndTitle(String query) {
+        query = "%" + query.toLowerCase() + "%";
+
+        String sqlQuery = "SELECT * " +
+                "FROM FILMS as f " +
+                "LEFT JOIN mpa m ON f.MPA_ID = M.MPA_ID " +
+                "LEFT JOIN film_directors as fd ON f.FILM_ID = fd.FILM_ID " +
+                "LEFT JOIN directors as d ON fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                "WHERE LCASE(f.NAME) LIKE ? OR LCASE(d.DIRECTOR_NAME) LIKE ? " +
+                "ORDER BY f.FILM_ID DESC ";
+
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, query, query);
+    }
+
+    @Override
+    public List<Film> getPopular(Integer count, Integer genreId, Integer year) {
         StringBuilder getPopularFilmsSql = new StringBuilder();
         getPopularFilmsSql.append(
                 "SELECT * " +
@@ -126,7 +141,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+    public List<Film> getCommon(Integer userId, Integer friendId) {
         String sqlQuery = "SELECT * " +
                 "FROM FILMS AS f " +
                 "JOIN MPA AS m ON m.MPA_ID = f.MPA_ID " +
