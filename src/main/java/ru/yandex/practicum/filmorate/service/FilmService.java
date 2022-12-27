@@ -72,11 +72,11 @@ public class FilmService {
         log.info("Пользователю: c id:{} удалил лайк у  фильмв: id:{}", userId, id);
     }
 
-    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+    public List<Film> getPopular(Integer count, Integer genreId, Integer year) {
         if (year != null && year < 0) {
             throw new ObjectNotFoundException("Год не может быть отрицательным");
         }
-        List<Film> films = filmStorage.getPopularFilms(count, genreId, year);
+        List<Film> films = filmStorage.getPopular(count, genreId, year);
         genreStorage.findGenresForFilm(films);
         directorStorage.findDirectorsForFilm(films);
         return films;
@@ -86,7 +86,7 @@ public class FilmService {
         checkUser(userId);
         checkUser(friendId);
 
-        return filmStorage.getCommonFilms(userId, friendId);
+        return filmStorage.getCommon(userId, friendId);
     }
 
     public void checkUser(Integer id) {
@@ -100,7 +100,7 @@ public class FilmService {
         filmStorage.delete(id);
     }
 
-    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+    public List<Film> getByDirector(Integer directorId, String sortBy) {
         List<Film> films = directorStorage.getFilmsByDirector(directorId, sortBy);
         genreStorage.findGenresForFilm(films);
         directorStorage.findDirectorsForFilm(films);
@@ -114,18 +114,17 @@ public class FilmService {
         checkFilm(idFilm);
     }
 
-    public List<Film> searchFilms(String query, String[] searchBy) {
+    public List<Film> search(String query, String[] searchBy) {
         List<Film> films = new ArrayList<>();
         if (searchBy.length == 2) {
             log.info("Поиск фильмов по режиссеру и названию: {}", query);
-            films.addAll(filmStorage.searchFilmsByDirector(query));
-            films.addAll(filmStorage.searchFilmsByTitle(query));
+            films.addAll(filmStorage.searchByDirectorAndTitle(query));
         } else if (searchBy[0].equals("director")) {
             log.info("Поиск фильмов по режиссеру: {}", query);
-            films.addAll(filmStorage.searchFilmsByDirector(query));
+            films.addAll(filmStorage.searchByDirector(query));
         } else if (searchBy[0].equals("title")) {
             log.info("Поиск фильмов по названию: {}", query);
-            films.addAll(filmStorage.searchFilmsByTitle(query));
+            films.addAll(filmStorage.searchByTitle(query));
         }
         genreStorage.findGenresForFilm(films);
         directorStorage.findDirectorsForFilm(films);

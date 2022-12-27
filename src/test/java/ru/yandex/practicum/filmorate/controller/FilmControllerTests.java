@@ -123,7 +123,7 @@ class FilmControllerTests {
 
     @Test
     void testFindEmptyPopularFilms() {
-        assertEquals(new ArrayList<>(), filmDbStorage.getPopularFilms(5, null, null));
+        assertEquals(new ArrayList<>(), filmDbStorage.getPopular(5, null, null));
     }
 
     @Test
@@ -135,7 +135,7 @@ class FilmControllerTests {
         likesDAO.putLike(1, 1);
         likesDAO.putLike(1, 2);
         likesDAO.putLike(2, 2);
-        assertEquals(1, filmDbStorage.getPopularFilms(1, null, null).get(0).getId());
+        assertEquals(1, filmDbStorage.getPopular(1, null, null).get(0).getId());
     }
 
 

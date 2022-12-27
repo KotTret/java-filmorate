@@ -5,8 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.RecommendationStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.genre.GenreDAO;
 
 import java.util.*;
 
@@ -18,6 +22,10 @@ import static java.util.stream.Collectors.toList;
 public class RecommendationService {
     private final UserStorage userStorage;
     private final RecommendationStorage recommendationStorage;
+
+    private final GenreStorage genreDAO;
+
+    private final DirectorStorage directorStorage;
     
     public List<Film> getRecommendedFilms(Integer userId) {
         checkUser(userId);
@@ -49,7 +57,10 @@ public class RecommendationService {
             return new ArrayList<>();
         }
         log.info("Количество рекомендуемых фильмов - {}", recommendedFilmsId.size());
-        return recommendationStorage.getRecommendationsFilms(recommendedFilmsId);
+        List<Film> films = recommendationStorage.getRecommendationsFilms(recommendedFilmsId);
+        genreDAO.findGenresForFilm(films);
+        directorStorage.findDirectorsForFilm(films);
+        return films;
     }
 
     private List<Integer> likesUserEqualsUser(List<Integer> userLikes, List<Integer[]> notUserLikes) {
